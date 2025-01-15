@@ -44,6 +44,7 @@ Dieses Projekt kombiniert die Funktionalitäten einer interaktiven Kalender-Webs
 ### Dateien
 plaintext
 project/
+
 ├── index.html       // Login-Seite
 ├── calendar.html    // Kalenderseite mit Veranstaltungsübersicht
 ├── style.css        // Stylesheet
