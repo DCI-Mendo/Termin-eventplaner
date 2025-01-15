@@ -46,15 +46,25 @@ plaintext
 project/
 
 ├── index.html       // Login-Seite
+
 ├── calendar.html    // Kalenderseite mit Veranstaltungsübersicht
+
 ├── style.css        // Stylesheet
+
 ├── script.ts        // Haupt-TypeScript-Datei
+
 ├── users.csv        // Benutzerdaten
+
 ├── events.csv       // Veranstaltungsdaten
+
 └── components/      // Wiederverwendbare Komponenten
+
     ├── calendar.ts  // Kalenderlogik
+
     ├── events.ts    // Veranstaltungslogik
+
     └── utils.ts     // Hilfsfunktionen
+    
 
 ### CSV-Struktur
 - **`users.csv`**:
