@@ -45,26 +45,26 @@ Dieses Projekt kombiniert die Funktionalitäten einer interaktiven Kalender-Webs
 plaintext
 project/
 
-├── index.html       // Login-Seite
+├── index.html        // Login-Seite
 
-├── calendar.html    // Kalenderseite mit Veranstaltungsübersicht
+├── calendar.html       // Kalenderseite mit Veranstaltungsübersicht
 
-├── style.css        // Stylesheet
+├── style.css          // Stylesheet
 
-├── script.ts        // Haupt-TypeScript-Datei
+├── script.ts          // Haupt-TypeScript-Datei
 
-├── users.csv        // Benutzerdaten
+├── users.csv           // Benutzerdaten
 
-├── events.csv       // Veranstaltungsdaten
+├── events.csv        // Veranstaltungsdaten
 
-└── components/      // Wiederverwendbare Komponenten
+└── components/       // Wiederverwendbare Komponenten
 
-    ├── calendar.ts  // Kalenderlogik
+    ├── calendar.ts   // Kalenderlogik
 
-    ├── events.ts    // Veranstaltungslogik
+    ├── events.ts       // Veranstaltungslogik
 
-    └── utils.ts     // Hilfsfunktionen
-    
+    └── utils.ts        // Hilfsfunktionen
+
 
 ### CSV-Struktur
 - **`users.csv`**:
