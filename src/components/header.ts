@@ -1,17 +1,21 @@
-import { setupNavigation } from '../router';
+import { setupNavigation } from "../router";
 
 export function loadHeader() {
-  fetch('/src/components/header.html')
-    .then(response => response.text())
-    .then(data => {
-      const headerElement = document.getElementById('header');
+  fetch("/src/components/header.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch header: ${response.statusText}`);
+      }
+      return response.text();
+    })
+    .then((data) => {
+      const headerElement = document.getElementById("header");
       if (headerElement) {
         headerElement.innerHTML = data;
-        setupNavigation(); // Call setupNavigation after the header is loaded
+        setupNavigation(); // Attach navigation listeners after loading the header
       } else {
-        console.error('Header element not found');
+        console.error("Header element not found");
       }
-      // Add any additional JavaScript functionality for the header here
     })
-    .catch(error => console.error('Error loading header:', error));
+    .catch((error) => console.error("Error loading header:", error));
 }

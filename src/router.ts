@@ -12,9 +12,14 @@ const routes: { [key: string]: string } = {
   }
   
   function loadContent(url: string) {
-    const path = routes[url as keyof typeof routes] || "404.html";
+    const path = routes[url] || "404.html";
     fetch(`/src/pages/${path}`)
-      .then((response) => response.text())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load content: ${response.statusText}`);
+        }
+        return response.text();
+      })
       .then((data) => {
         const appElement = document.getElementById("app");
         if (appElement) {
@@ -37,7 +42,3 @@ const routes: { [key: string]: string } = {
       });
     });
   }
-  
-  window.addEventListener("popstate", () => {
-    loadContent(window.location.pathname);
-  });
