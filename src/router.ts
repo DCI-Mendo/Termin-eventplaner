@@ -24,11 +24,47 @@ const routes: { [key: string]: string } = {
         const appElement = document.getElementById("app");
         if (appElement) {
           appElement.innerHTML = data;
+  
+          // Reinitialize page-specific scripts
+          initializePageLogic();
         } else {
           console.error("App element not found");
         }
       })
       .catch((error) => console.error("Error loading content:", error));
+  }
+  
+  export function initializePageLogic() {
+    const currentPage = window.location.pathname;
+  
+    if (currentPage === "/contact") {
+      // Initialize contact form logic
+      initContactForm();  // Assume initContactForm is your function for handling form submission
+    }
+    // Add more conditions for other pages as needed
+  }
+  
+  
+  function initContactForm() {
+    const contactForm = document.getElementById("contactForm") as HTMLFormElement;
+    if (!contactForm) return;
+  
+    contactForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+  
+      const formData = new FormData(contactForm);
+      const name = formData.get("name") as string;
+      const email = formData.get("email") as string;
+      const message = formData.get("message") as string;
+  
+      if (!name || !email || !message) {
+        alert("Please fill out all fields.");
+        return;
+      }
+  
+      alert(`Thank you, ${name}! Your message has been sent.`);
+      contactForm.reset();
+    });
   }
   
   export function setupNavigation() {
@@ -42,3 +78,9 @@ const routes: { [key: string]: string } = {
       });
     });
   }
+  
+  // Handle browser back/forward navigation
+  window.addEventListener("popstate", () => {
+    loadContent(window.location.pathname);
+  });
+  
