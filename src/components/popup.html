@@ -1,0 +1,74 @@
+<div
+  id="eventPopup"
+  class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 items-center justify-center"
+>
+  <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+    <h2 class="text-xl font-bold mb-4">Add/Edit Event</h2>
+    <form id="eventForm">
+      <div class="mb-4">
+        <label for="eventTitle" class="block text-sm font-medium text-gray-700"
+          >Title</label
+        >
+        <input
+          type="text"
+          id="eventTitle"
+          name="title"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label
+          for="eventDescription"
+          class="block text-sm font-medium text-gray-700"
+          >Description</label
+        >
+        <textarea
+          id="eventDescription"
+          name="description"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          required
+        ></textarea>
+      </div>
+      <div class="mb-4">
+        <label for="eventDate" class="block text-sm font-medium text-gray-700"
+          >Date</label
+        >
+        <input
+          type="date"
+          id="eventDate"
+          name="date"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label for="eventTime" class="block text-sm font-medium text-gray-700"
+          >Time</label
+        >
+        <input
+          type="time"
+          id="eventTime"
+          name="time"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          required
+        />
+      </div>
+      <div class="flex justify-end">
+        <button
+          type="button"
+          id="cancelButton"
+          class="bg-gray-500 text-white px-4 py-2 rounded-md mr-2"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="bg-indigo-600 text-white px-4 py-2 rounded-md"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
