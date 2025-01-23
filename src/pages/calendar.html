@@ -1,0 +1,43 @@
+<div class="container mx-auto mt-10">
+  <div class="wrapper bg-white rounded shadow w-full">
+    <div class="header flex justify-between border-b p-2">
+      <span class="text-lg font-bold">2020 July</span>
+      <div class="buttons">
+        <button
+          id="addEventButton"
+          class="bg-indigo-600 text-white px-4 py-2 rounded-md"
+        >
+          Add Event
+        </button>
+      </div>
+    </div>
+    <table class="w-full">
+      <thead>
+        <tr>
+          <th
+            class="p-2 border-r h-10 xl:w-40 lg:w-30 md:w-30 sm:w-20 w-10 xl:text-sm text-xs"
+          >
+            <span class="xl:block lg:block md:block sm:block hidden"
+              >Sunday</span
+            >
+            <span class="xl:hidden lg:hidden md:hidden sm:hidden block"
+              >Sun</span
+            >
+          </th>
+          <!-- Repeat for other days of the week -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="text-center h-20">
+          <td
+            class="border p-1 h-40 xl:w-40 lg:w-30 md:w-30 sm:w-20 w-10 overflow-auto transition cursor-pointer duration-500 ease hover:bg-gray-300 calendar-day"
+            data-date="2020-07-01"
+          >
+            <!-- Events will be rendered here -->
+          </td>
+          <!-- Repeat for other days of the month -->
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
