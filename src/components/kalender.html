@@ -500,12 +500,9 @@
 
       // Initialize or load persons from localStorage
       let persons = JSON.parse(localStorage.getItem("persons")) || [
-        { id: 1, name: "Cordula", color: "#FFC0CB" },
-        { id: 2, name: "Heike", color: "#4ECDC4" },
-        { id: 3, name: "Cathrin", color: "#4169E1" },
-        { id: 4, name: "Iris", color: "#FFA07A" },
-        { id: 5, name: "Danni", color: "#98FB98" },
-        { id: 6, name: "Termine", color: "#DDA0DD" },
+        { id: 1, name: "Admin", password:"admin", roll: "admin", color: "#FFC0CB" },
+        { id: 2, name: "User", password:"user", roll: "user", color: "#FF4500" },
+        { id: 6, name: "Termine", password:"termine", roll: "termine", color: "#FF69B4" },
       ];
 
       // Save persons to localStorage
