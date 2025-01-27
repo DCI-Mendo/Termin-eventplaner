@@ -8,25 +8,6 @@ export function initContactPage() {
 
   if (!contactForm) return;
 
-  // Populate form with saved data from localStorage
-  const savedName = localStorage.getItem("contactFormName");
-  const savedEmail = localStorage.getItem("contactFormEmail");
-  const savedMessage = localStorage.getItem("contactFormMessage");
-
-  console.log("Retrieved from localStorage:", {
-    savedName,
-    savedEmail,
-    savedMessage,
-  });
-
-  if (savedName)
-    (document.getElementById("name") as HTMLInputElement).value = savedName;
-  if (savedEmail)
-    (document.getElementById("email") as HTMLInputElement).value = savedEmail;
-  if (savedMessage)
-    (document.getElementById("message") as HTMLTextAreaElement).value =
-      savedMessage;
-
   contactForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
@@ -53,23 +34,12 @@ export function initContactPage() {
       return;
     }
 
-    // Save form data to localStorage
-    console.log("Saving to localStorage:", { name, email, message });
-    localStorage.setItem("contactFormName", name);
-    localStorage.setItem("contactFormEmail", email);
-    localStorage.setItem("contactFormMessage", message);
-
     // Display success message and reset form
     displayMessage(
       `Thank you, ${name}! Your message has been sent.`,
       "success",
     );
     contactForm.reset();
-
-    // Clear localStorage
-    // localStorage.removeItem("contactFormName");
-    // localStorage.removeItem("contactFormEmail");
-    // localStorage.removeItem("contactFormMessage");
   });
 
   function displayMessage(message: string, type: string) {
