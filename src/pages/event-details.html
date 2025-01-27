@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalles del Evento</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <a href="event-details.html" class="text-blue-500 hover:text-blue-600">&larr; Volver</a>
+    <h1 id="eventTitle" class="text-4xl font-bold text-center mb-8 text-blue-600"></h1>
+    <div id="eventDetails" class="bg-white rounded-lg shadow-lg p-6"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const eventId = params.get('id');
+
+    const events = ${JSON.stringify(new EventService().getAllEvents())};
+
+    const event = events.find(e => e.id === eventId);
+
+    if (event) {
+      document.getElementById('eventTitle').textContent = event.title;
+      document.getElementById('eventDetails').innerHTML = `
+        <p class="text-gray-600 mb-4">${event.description}</p>
+        <p><strong>Price:</strong> ${event.price} €</p>
+        <p><strong>Duration:</strong> ${event.duration}</p>
+        <p><strong>Capacity:</strong> ${event.capacity}</p>
+        <p><strong>Category:</strong> ${event.category}</p>
+        <p class="mt-4">${event.details}</p>
+      `;
+    } else {
+      document.getElementById('eventDetails').textContent = 'Evento no encontrado.';
+    }
+  </script>
+</body>
+</html>
