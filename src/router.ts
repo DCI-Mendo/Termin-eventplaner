@@ -1,4 +1,5 @@
 import { initContactPage } from "./pages/contact";
+import { openPopup, closePopup } from "./components/popup";
 
 const routes: { [key: string]: string } = {
   "/": "home.html",
@@ -42,6 +43,14 @@ export function initializePageLogic() {
   if (currentPage === "/contact") {
     // Initialize contact form logic
     initContactPage();
+  } else if (currentPage === "/calendar") {
+    // Initialize calendar logic
+    document
+      .getElementById("addEventButton")
+      ?.addEventListener("click", openPopup);
+    document
+      .getElementById("cancelButton")
+      ?.addEventListener("click", closePopup);
   }
   // Add more conditions for other pages as needed
 }
