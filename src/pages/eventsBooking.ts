@@ -252,7 +252,7 @@ export class EventService {
     }
   }
 
-  buyEvent(eventId: string): boolean {
+  bookEvent(eventId: string): boolean {
     const event = this.events.find((event) => event.id === eventId);
     if (event && event.capacity > 0) {
       event.capacity -= 1; // Decrease capacity by 1
@@ -262,7 +262,7 @@ export class EventService {
   }
 }
 
-class EventRenderer {
+export class EventRenderer {
   private eventService: EventService;
   private eventsContainer: HTMLElement;
   private filterContainer: HTMLElement;
@@ -379,7 +379,7 @@ class EventRenderer {
     bookingButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const eventId = button.getAttribute("data-id");
-        const success = this.eventService.buyEvent(eventId!);
+        const success = this.eventService.bookEvent(eventId!);
 
         if (success) {
           alert("Booking successful!");
@@ -403,6 +403,7 @@ class EventRenderer {
     });
   }
 }
-
-const eventRenderer = new EventRenderer();
-eventRenderer.initializeEvents();
+document.addEventListener("DOMContentLoaded", () => {
+  const eventRenderer = new EventRenderer();
+  eventRenderer.initializeEvents();
+});

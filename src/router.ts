@@ -1,5 +1,6 @@
 import { initContactPage } from "./pages/contact";
 import { openPopup, closePopup } from "./components/popup";
+import { EventRenderer } from "./pages/eventsBooking"; // Import EventRenderer
 
 const routes: { [key: string]: string } = {
   "/": "home.html",
@@ -51,6 +52,10 @@ export function initializePageLogic() {
     document
       .getElementById("cancelButton")
       ?.addEventListener("click", closePopup);
+  } else if (currentPage === "/services") {
+    // Initialize events booking logic
+    const eventRenderer = new EventRenderer();
+    eventRenderer.initializeEvents();
   }
   // Add more conditions for other pages as needed
 }
