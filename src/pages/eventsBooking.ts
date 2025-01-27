@@ -1,5 +1,3 @@
-import "./styles/index.css";
-
 interface Event {
   id: string;
   title: string;
@@ -279,12 +277,16 @@ export class EventRenderer {
     const events = category
       ? this.eventService.getEventsByCategory(category)
       : this.eventService.getAllEvents();
-
-    this.eventsContainer.innerHTML = events
-      .map((event) => this.createEventCard(event))
-      .join("");
-    this.attachBookingListeners(); // Attach functionality to the Booking buttons
-    this.attachFavoriteListeners(); // Attach functionality to the Favorite buttons
+    // Ensure eventsContainer is not null before setting innerHTML
+    if (this.eventsContainer) {
+      this.eventsContainer.innerHTML = events
+        .map((event) => this.createEventCard(event))
+        .join("");
+      this.attachBookingListeners(); // Attach functionality to the Booking buttons
+      this.attachFavoriteListeners(); // Attach functionality to the Favorite buttons
+    } else {
+      console.error("eventsContainer element not found");
+    }
   }
 
   private createEventCard(event: Event): string {
@@ -348,8 +350,13 @@ export class EventRenderer {
       )
       .join("");
 
-    this.filterContainer.innerHTML = allButton + categoryButtons;
-    this.attachFilterListeners();
+    // Ensure filterContainer is not null before setting innerHTML
+    if (this.filterContainer) {
+      this.filterContainer.innerHTML = allButton + categoryButtons;
+      this.attachFilterListeners();
+    } else {
+      console.error("filterContainer element not found");
+    }
   }
 
   private attachFilterListeners() {
