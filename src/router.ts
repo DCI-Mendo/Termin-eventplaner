@@ -1,4 +1,5 @@
 import { initContactPage } from "./pages/contact";
+import { initializeCalendarPage } from "./pages/calendar";
 
 const routes: { [key: string]: string } = {
   "/": "home.html",
@@ -42,6 +43,9 @@ export function initializePageLogic() {
   if (currentPage === "/contact") {
     // Initialize contact form logic
     initContactPage();
+  } else if (currentPage === "/calendar") {
+    // Initialize calendar page logic
+    initializeCalendarPage();
   }
   // Add more conditions for other pages as needed
 }
