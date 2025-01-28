@@ -1,393 +1,37 @@
 <html><head><base href="https://www.EvB-gemeinsamer.Kalender.de">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/calendar.css">
     <title>Calendar & Event Planner</title>
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4285f4">
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f0f0f0;
-      }
-      header {
-        background-color: #4285f4;
-        color: white;
-        text-align: center;
-        padding: 1rem;
-      }
-      main {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-      .calendar {
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        overflow: hidden;
-        position: relative;
-      }
-      .month-nav, .year-nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #4285f4;
-        color: white;
-        padding: 1rem;
-      }
-      .month-nav button, .year-nav button {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.2rem;
-        cursor: pointer;
-      }
-      .weekdays, .weekdays.mini {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        background-color: #e0e0e0;
-        padding: 0.5rem;
-        font-weight: bold;
-      }
-      .weekdays.mini {
-        font-size: 0.8rem;
-        text-align: center;
-        background-color: #f5f5f5;
-        padding: 0.2rem 0;
-      }
-      .days, .mini-days {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-      }
-      .day, .mini-day {
-        padding: 0.5rem;
-        border: 1px solid #e0e0e0;
-        min-height: 100px;
-        position: relative;
-      }
-      .mini-day {
-        aspect-ratio: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        padding: 0.2rem;
-        min-width: 25px;
-        min-height: 25px;
-        border-radius: 3px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-      .mini-day.empty {
-        background-color: #f9f9f9;
-        cursor: default;
-      }
-      .mini-day.has-events {
-        font-weight: bold;
-        background-color: #e0e0e0;
-      }
-      .mini-day:hover:not(.empty) {
-        background-color: #d0d0d0;
-      }
-      .day:hover {
-        background-color: #f0f0f0;
-        cursor: pointer;
-      }
-      .date {
-        font-weight: bold;
-        margin-bottom: 0.5rem;
-      }
-      .event {
-        padding: 0.2rem;
-        margin: 0.2rem 0;
-        font-size: 0.8rem;
-        border-radius: 3px;
-        cursor: pointer;
-        transition: opacity 0.3s ease;
-      }
-      .event:hover {
-        opacity: 0.7;
-      }
-      .person-selector {
-        margin-bottom: 1rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-      }
-      .person-selector button {
-        margin-right: 0.5rem;
-        padding: 0.5rem;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-        color: white;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-      }
-      .person-selector button.active {
-        font-weight: bold;
-        border: 2px solid #000;
-      }
-      .edit-person-btn {
-        background-color: #555;
-        color: white;
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-        margin-left: auto;
-      }
-      .edit-person-btn:hover {
-        background-color: #333;
-      }
-      .other-month {
-        opacity: 0.5;
-      }
-      .date-range-input {
-        margin-bottom: 1rem;
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-      .date-range-input input {
-        padding: 0.5rem;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-      }
-      .date-range-input button {
-        padding: 0.5rem 1rem;
-        background-color: #4285f4;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-      }
-      .current-day {
-        background-color: #FFFF00;
-      }
-      #year-overview-btn {
-        padding: 0.5rem 1rem;
-        background-color: #4285f4;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-        margin-bottom: 1rem;
-      }
-      .view-selector {
-        margin-bottom: 1rem;
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-      }
-      .view-btn {
-        padding: 0.5rem 1rem;
-        background-color: #f0f0f0;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-      .view-btn:hover {
-        background-color: #e0e0e0;
-      }
-      .view-btn.active {
-        background-color: #4285f4;
-        color: white;
-        border-color: #4285f4;
-      }
-      .calendar.day-view .days,
-      .calendar.week-view .days {
-        grid-template-columns: 1fr;
-      }
-      .calendar.day-view .day,
-      .calendar.week-view .day {
-        min-height: 150px;
-      }
-      .calendar.year-view .days {
-        display: none;
-      }
-      .year-view-content {
-        display: none;
-        padding: 1rem;
-        overflow-y: auto;
-        max-height: 80vh;
-      }
-      .month-container {
-        background: white;
-        border-radius: 4px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        margin-bottom: 1rem;
-      }
-      .month-header {
-        background-color: #4285f4;
-        color: white;
-        padding: 0.5rem;
-        text-align: center;
-        font-size: 1rem;
-      }
-      @media (max-width: 768px) {
-        .month-container {
-          font-size: 0.8rem;
-        }
-        .weekdays.mini {
-          font-size: 0.7rem;
-        }
-        .mini-day {
-          min-width: 20px;
-          min-height: 20px;
-          font-size: 0.7rem;
-        }
-      }
-      @media (max-width: 480px) {
-        .month-container {
-          font-size: 0.7rem;
-        }
-        .weekdays.mini {
-          font-size: 0.6rem;
-        }
-        .mini-day {
-          min-width: 18px;
-          min-height: 18px;
-          font-size: 0.6rem;
-        }
-      }
-      /* Modal Styles */
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.4);
-        justify-content: center;
-        align-items: center;
-      }
-      .modal-content {
-        background-color: #fefefe;
-        padding: 20px;
-        border: 1px solid #888;
-        border-radius: 5px;
-        width: 90%;
-        max-width: 500px;
-      }
-      .close-modal {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-      }
-      .close-modal:hover,
-      .close-modal:focus {
-        color: black;
-        text-decoration: none;
-      }
-      .person-edit {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-        gap: 0.5rem;
-      }
-      .person-edit input[type="text"] {
-        flex: 1;
-        padding: 0.5rem;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-      }
-      .person-edit input[type="color"] {
-        border: none;
-        padding: 0;
-        background: none;
-        cursor: pointer;
-        width: 40px;
-        height: 40px;
-      }
-      .add-person-btn {
-        padding: 0.5rem 1rem;
-        background-color: #4285f4;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-        margin-top: 1rem;
-      }
-      .add-person-btn:hover {
-        background-color: #306acb;
-      }
-      .remove-person-btn {
-        padding: 0.3rem 0.6rem;
-        background-color: #ff4d4d;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-      }
-      .remove-person-btn:hover {
-        background-color: #e60000;
-      }
-      /* Filter Styles */
-      .filter-dropdown {
-        position: relative;
-        display: inline-block;
-        margin-bottom: 1rem;
-      }
-      .filter-dropdown button {
-        padding: 0.5rem 1rem;
-        background-color: #4285f4;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-      }
-      .filter-dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: #fafafa;
-        min-width: 200px;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-        padding: 1rem;
-        z-index: 1;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-      }
-      .filter-dropdown-content.show {
-        display: block;
-      }
-      .filter-options {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-      }
-      .filter-option {
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-      }
-      #reset-filters {
-        padding: 0.5rem 1rem;
-        background-color: #ff4d4d;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-      }
-      #reset-filters:hover {
-        background-color: #e60000;
-      }
-    </style>
     </head>
     <body>
+      <div id="login-modal" class="modal" style="display: flex;">
+        <div class="modal-content">
+          <h2>Login</h2>
+          <label for="username">Benutzername:</label>
+          <input type="text" id="username" placeholder="Benutzername">
+          <label for="password">Passwort:</label>
+          <input type="password" id="password" placeholder="Passwort">
+          <button id="login-btn">Login</button>
+          <p id="login-error" style="color: red; display: none;">Ungültiger Benutzername oder Passwort</p>
+        </div>
+      </div>
+      <script>
+        document.getElementById('login-btn').addEventListener('click', () => {
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
+          const user = persons.find(p => p.name === username && p.password === password);
+          if (user) {
+            document.getElementById('login-modal').style.display = 'none';
+            activePerson = user.id;
+            generatePersonSelectors();
+            switchView('month');
+          } else {
+            document.getElementById('login-error').style.display = 'block';
+          }
+        });
+      </script>
       <header>
         <h1>Termin / Event Planer</h1>
       </header>
@@ -480,7 +124,34 @@
         { id: 2, name: "User", password:"user", roll: "user", color: "#FF4500" },
         { id: 6, name: "Termine", password:"termine", roll: "termine", color: "#FF69B4" },
       ];
-    
+    // Prompt user to change password on first login
+    function promptChangePassword(user) {
+      const newPassword = prompt(`Hallo ${user.name}, bitte ändern Sie Ihr Passwort:`);
+      if (newPassword && newPassword.trim() !== '') {
+        user.password = newPassword.trim();
+        savePersons();
+        alert('Passwort erfolgreich geändert.');
+      } else {
+        alert('Passwortänderung abgebrochen. Bitte ändern Sie Ihr Passwort beim nächsten Login.');
+      }
+    }
+
+    document.getElementById('login-btn').addEventListener('click', () => {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const user = persons.find(p => p.name === username && p.password === password);
+      if (user) {
+        if (user.password === 'user1234') {
+          promptChangePassword(user);
+        }
+        document.getElementById('login-modal').style.display = 'none';
+        activePerson = user.id;
+        generatePersonSelectors();
+        switchView('month');
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    });
         // Save persons to localStorage
         function savePersons() {
           localStorage.setItem('persons', JSON.stringify(persons));
@@ -622,7 +293,73 @@
           // Also regenerate filter selectors
           generateFilterSelectors();
         }
-    
+    // Check if the user has permission to view or edit an event
+    function hasPermission(personId) {
+      const activePersonObj = persons.find(p => p.id === activePerson);
+      if (!activePersonObj) return false;
+      if (activePersonObj.roll === 'admin') return true;
+      if (activePersonObj.roll === 'user' && (personId === activePerson || personId === 6)) return true;
+      return false;
+    }
+
+    // Apply filters to events with permission check
+    function applyFilters() {
+      document.querySelectorAll('.event').forEach(eventEl => {
+      const personId = parseInt(eventEl.getAttribute('data-person'));
+      if (allowedPersons.has(personId) && hasPermission(personId)) {
+        eventEl.style.display = 'block';
+      } else {
+        eventEl.style.display = 'none';
+      }
+      });
+    }
+
+    // Add event to day with permission check
+    function addEventToDay(dayElement, eventText, person) {
+      const eventElement = document.createElement('div');
+      eventElement.className = 'event';
+      eventElement.textContent = eventText;
+      const personObj = persons.find(p => p.id === person);
+      if (personObj) {
+      eventElement.style.backgroundColor = personObj.color;
+      eventElement.style.color = getContrastYIQ(personObj.color);
+      }
+      eventElement.setAttribute('data-person', person);
+
+      if (hasPermission(person)) {
+      eventElement.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm('Möchten Sie diesen Termin löschen?')) {
+        eventElement.remove();
+        deleteEvent(currentDate.getFullYear(), currentDate.getMonth() + 1, dayElement.querySelector('.date').textContent, eventText, person);
+        }
+      });
+      }
+
+    dayElement.appendChild(eventElement);
+    applyFilters();
+
+      dayElement.appendChild(eventElement);
+      applyFilters();
+    }
+
+    // Add event listener for login button with permission check
+    document.getElementById('login-btn').addEventListener('click', () => {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const user = persons.find(p => p.name === username && p.password === password);
+      if (user) {
+        if (user.password === 'user1234') {
+          promptChangePassword(user);
+        }
+        document.getElementById('login-modal').style.display = 'none';
+        activePerson = user.id;
+        generatePersonSelectors();
+        switchView('month');
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    });
         let activePerson = 1;
         let currentDate = new Date(); // Beginne mit dem aktuellen Datum
         let currentView = 'month';
@@ -705,17 +442,16 @@
           });
         }
     
-        // Add new person
-        addPersonBtn.addEventListener('click', () => {
-          const newId = persons.length > 0 ? Math.max(...persons.map(p => p.id)) + 1 : 1;
-          const newPerson = { id: newId, name: '', color: '#000000' };
-          persons.push(newPerson);
-          savePersons();
-          generatePersonSelectors();
-          populateEditModal();
-          generateFilterSelectors();
-        });
-    
+    // Add new person with default password and prompt to change it on login
+    addPersonBtn.addEventListener('click', () => {
+      const newId = persons.length > 0 ? Math.max(...persons.map(p => p.id)) + 1 : 1;
+      const newPerson = { id: newId, name: '', password: 'user1234', roll: 'user', color: '#000000' };
+      persons.push(newPerson);
+      savePersons();
+      generatePersonSelectors();
+      populateEditModal();
+      generateFilterSelectors();
+    });
         // Remove person
         function removePerson(id) {
           if (persons.length <= 1) {
@@ -1153,7 +889,7 @@
           }
         });
     
-        // Register Service Worker for PWA
+/*         // Register Service Worker for PWA
         if ('serviceWorker' in navigator) {
           window.addEventListener('load', () => {
             navigator.serviceWorker.register('/service-worker.js')
@@ -1165,7 +901,7 @@
               });
           });
         }
-    
+ */    
         // Dropdown Filter Functionality
         const filterDropdownBtn = document.getElementById('filter-dropdown-btn');
         const filterDropdownContent = document.getElementById('filter-dropdown-content');
