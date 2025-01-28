@@ -5,7 +5,11 @@ const teamMembers = [
     role: "Lead Developer",
     imageUrl: "path/to/marcus.jpg",
   },
-  { name: "Ese Osagie", role: "UI/UX Designer", imageUrl: "path/to/ese.jpg" },
+  {
+    name: "Ese Osagie",
+    role: "UI/UX Designer",
+    imageUrl: "path/to/ese.jpg",
+  },
   {
     name: "Balta Garcia",
     role: "Project Manager",
@@ -25,12 +29,12 @@ function renderTeam() {
     teamSection.innerHTML = teamMembers
       .map(
         (member) => `
-          <div class="bg-white shadow-lg rounded-lg p-6">
-            <img src="${member.imageUrl}" alt="${member.name}" class="h-16 w-16 rounded-full mb-4 mx-auto object-cover" />
-            <h3 class="text-lg font-medium text-gray-800 text-center">${member.name}</h3>
-            <p class="text-sm text-gray-600 text-center">${member.role}</p>
-          </div>
-        `,
+            <div class="bg-white shadow-lg rounded-lg p-6">
+              <img src="${member.imageUrl}" alt="${member.name}" class="h-16 w-16 rounded-full mb-4 mx-auto object-cover" />
+              <h3 class="text-lg font-medium text-gray-800 text-center">${member.name}</h3>
+              <p class="text-sm text-gray-600 text-center">${member.role}</p>
+            </div>
+          `,
       )
       .join("");
   }
