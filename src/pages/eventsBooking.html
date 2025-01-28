@@ -1,33 +1,20 @@
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Servicios de Eventos</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <script src="src/main.ts" type="module"></script>
-  </head>
-  <body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-      <h1 class="text-4xl font-bold text-center mb-8 text-blue-600">
-        Our Event Services
-      </h1>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold text-center mb-8 text-blue-600">
+      Our Event Services
+    </h1>
 
-      <div class="flex justify-center mb-8">
-        <div id="filterButtons" class="flex space-x-4">
-          <!-- The category filter will be generated dynamically -->
-        </div>
-      </div>
-
-      <div
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        id="eventsContainer"
-      >
-        <!-- Event cards will be generated dynamically -->
+    <div class="flex justify-center mb-8">
+      <div id="filterButtons" class="flex space-x-4">
+        <!-- The category filter will be generated dynamically -->
       </div>
     </div>
-  </body>
-</html>
+
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      id="eventsContainer"
+    >
+      <!-- Event cards will be generated dynamically -->
+    </div>
+  </div>
+</body>

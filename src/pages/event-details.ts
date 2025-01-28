@@ -4,9 +4,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(window.location.search);
   const eventId = params.get("id");
 
+  console.log("Event ID from URL:", eventId); // Debugging log
+
   const eventService = new EventService();
   const events = eventService.getAllEvents();
+  console.log("All events:", events); // Debugging log
+
   const event = events.find((e) => e.id === eventId);
+  console.log("Found event:", event); // Debugging log
 
   if (event) {
     document.getElementById("eventTitle")!.textContent = event.title;
@@ -23,3 +28,10 @@ document.addEventListener("DOMContentLoaded", () => {
       "Evento no encontrado.";
   }
 });
+
+function navigateBack(event: Event) {
+  event.preventDefault();
+  window.location.href = "eventsBooking.html";
+}
+// Attach the function to the window object
+(window as any).navigateBack = navigateBack;

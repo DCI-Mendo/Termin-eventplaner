@@ -285,7 +285,7 @@ export class EventRenderer {
       this.attachBookingListeners(); // Attach functionality to the Booking buttons
       this.attachFavoriteListeners(); // Attach functionality to the Favorite buttons
     } else {
-      console.error("eventsContainer element not found");
+      // console.error("eventsContainer element not found");
     }
   }
 
@@ -355,7 +355,7 @@ export class EventRenderer {
       this.filterContainer.innerHTML = allButton + categoryButtons;
       this.attachFilterListeners();
     } else {
-      console.error("filterContainer element not found");
+      // console.error("filterContainer element not found");
     }
   }
 
