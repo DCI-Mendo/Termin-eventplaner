@@ -1,10 +1,24 @@
-import { eventsList } from "../data/events";
+import { eventsList } from "../data/events"; // Import the eventsList from events.ts
 
+interface Event {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  price: number;
+  duration: string;
+  capacity: number;
+  icon: string;
+  details: string;
+  isFavorite: boolean;
+}
+
+// Use the imported eventsList to initialize the events array
 class EventService {
   private events: Event[];
 
   constructor() {
-    this.events = eventsList;
+    this.events = eventsList; // Initialize with the imported eventsList
   }
 
   getAllEvents(): Event[] {
@@ -34,10 +48,6 @@ class EventService {
     }
     return false;
   }
-
-  getEventById(eventId: string): Event | undefined {
-    return this.events.find((event) => event.id === eventId);
-  }
 }
 
 export class EventRenderer {
@@ -64,7 +74,6 @@ export class EventRenderer {
         .join("");
       this.attachBookingListeners(); // Attach functionality to the Booking buttons
       this.attachFavoriteListeners(); // Attach functionality to the Favorite buttons
-      this.attachDetailListeners(); // Attach functionality to the Detail buttons
     } else {
       console.error("eventsContainer element not found");
     }
@@ -100,9 +109,9 @@ export class EventRenderer {
               <button class="favorite-button ${event.isFavorite ? "text-red-500" : "text-gray-500"} hover:text-red-600" data-id="${event.id}">
                 <i class="fas fa-heart"></i>
               </button>
-              <button class="detail-button text-blue-500 hover:text-blue-600" data-id="${event.id}">
+              <a href="event-details.html?id=${event.id}" class="text-blue-500 hover:text-blue-600">
                 <i class="fas fa-info-circle"></i>
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -146,7 +155,17 @@ export class EventRenderer {
     filterButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const category = button.getAttribute("data-category");
-        this.initializeEvents(category === "all" ? undefined : category);
+
+        filterButtons.forEach((btn) =>
+          btn.classList.remove("bg-blue-500", "text-white"),
+        );
+        button.classList.add("bg-blue-500", "text-white");
+
+        if (category === "all") {
+          this.initializeEvents();
+        } else {
+          this.initializeEvents(category!);
+        }
       });
     });
   }
@@ -157,13 +176,13 @@ export class EventRenderer {
     bookingButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const eventId = button.getAttribute("data-id");
-        if (eventId) {
-          const success = this.eventService.bookEvent(eventId);
-          if (success) {
-            this.initializeEvents();
-          } else {
-            alert("Failed to book event. Please try again.");
-          }
+        const success = this.eventService.bookEvent(eventId!);
+
+        if (success) {
+          alert("Booking successful!");
+          this.initializeEvents(); // Re-render events to update capacities
+        } else {
+          alert("Booking failed. Event is sold out.");
         }
       });
     });
@@ -175,62 +194,10 @@ export class EventRenderer {
     favoriteButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const eventId = button.getAttribute("data-id");
-        if (eventId) {
-          this.eventService.toggleFavorite(eventId);
-          this.initializeEvents();
-        }
+        this.eventService.toggleFavorite(eventId!);
+        this.initializeEvents(); // Re-render events to update favorites
       });
     });
-  }
-
-  private attachDetailListeners() {
-    const detailButtons = document.querySelectorAll(".detail-button");
-
-    detailButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        const eventId = button.getAttribute("data-id");
-        if (eventId) {
-          this.renderEventDetails(eventId);
-        }
-      });
-    });
-  }
-
-  public renderEventDetails(eventId: string) {
-    const event = this.eventService.getEventById(eventId);
-    if (event) {
-      const appElement = document.getElementById("app");
-      if (appElement) {
-        appElement.innerHTML = `
-          <div class="container mx-auto px-4 py-8">
-            <button class="back-button bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition mb-4">
-              Back
-            </button>
-            <h1 class="text-4xl font-bold text-center mb-8 text-blue-600">${event.title}</h1>
-            <p class="text-gray-600 mb-4">${event.description}</p>
-            <p class="font-semibold">Price: ${event.price} €</p>
-            <p class="text-sm text-gray-500">Duration: ${event.duration}</p>
-            <p class="text-sm text-gray-500">Category: ${event.category}</p>
-            <p class="text-sm text-gray-500">Details: ${event.details}</p>
-          </div>
-        `;
-        this.attachBackListener();
-      } else {
-        console.error("App element not found");
-      }
-    } else {
-      console.error("Event not found");
-    }
-  }
-
-  private attachBackListener() {
-    const backButton = document.querySelector(".back-button");
-
-    if (backButton) {
-      backButton.addEventListener("click", () => {
-        this.initializeEvents();
-      });
-    }
   }
 }
 
