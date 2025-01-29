@@ -1,6 +1,6 @@
 import "./styles/index.css";
 import { loadHeader } from "./components/header";
-import { navigateTo } from "./router";
+import { navigateTo } from "../features/router";
 
 const initApp = () => {
   // Load the header dynamically

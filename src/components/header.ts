@@ -1,4 +1,4 @@
-import { setupNavigation } from "../router";
+import { setupNavigation } from "../../features/router";
 
 export function loadHeader() {
   fetch("/src/components/header.html")
