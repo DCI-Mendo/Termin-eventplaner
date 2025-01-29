@@ -1,6 +1,6 @@
 import { initContactPage } from "./pages/contact";
 import { openPopup, closePopup } from "./components/popup";
-import { EventRenderer } from "./pages/eventsBooking"; // Import EventRenderer
+import { EventRenderer } from "./pages/eventBooking"; // Import EventRenderer
 
 const routes: { [key: string]: string } = {
   "/": "home.html",
