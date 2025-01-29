@@ -1,24 +1,29 @@
 // Dynamic data for team members
-const teamMembers = [
+interface TeamMember {
+  name: string;
+  role: string;
+  imageUrl: string;
+}
+const teamMembers: TeamMember[] = [
   {
     name: "Marcus Stöppler",
     role: "Lead Developer",
-    imageUrl: "path/to/marcus.jpg",
+    imageUrl: "logos/Avatar1.2.png",
   },
   {
     name: "Ese Osagie",
     role: "UI/UX Designer",
-    imageUrl: "path/to/ese.jpg",
+    imageUrl: "logos/1714924078739.jpg",
   },
   {
     name: "Balta Garcia",
     role: "Project Manager",
-    imageUrl: "path/to/balta.jpg",
+    imageUrl: "logos/150234848.jpeg",
   },
   {
     name: "Thana Alabsi",
     role: "UI/UX Designer",
-    imageUrl: "path/to/thana.jpg",
+    imageUrl: "logos/thana.jpg",
   },
 ];
 
@@ -41,7 +46,7 @@ function renderTeam() {
 }
 
 // Initialize the About Us page
-function initAboutPage() {
+export function initAboutPage() {
   renderTeam();
 }
 

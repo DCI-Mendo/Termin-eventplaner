@@ -1,6 +1,7 @@
 import { initContactPage } from "./pages/contact";
 import { openPopup, closePopup } from "./components/popup";
 import { EventRenderer } from "./pages/eventsBooking"; // Import EventRenderer
+import { initAboutPage } from "./pages/about"; // Import initAboutPage
 
 const routes: { [key: string]: string } = {
   "/": "home.html",
@@ -56,6 +57,9 @@ export function initializePageLogic() {
     // Initialize events booking logic
     const eventRenderer = new EventRenderer();
     eventRenderer.initializeEvents();
+  } else if (currentPage === "/about") {
+    // Initialize About Us page logic
+    initAboutPage();
   }
   // Add more conditions for other pages as needed
 }
