@@ -1,5 +1,4 @@
 import { eventsList } from "../data/events";
-import { navigateTo } from "../../features/router";
 
 class EventService {
   private events: Event[];
@@ -147,17 +146,7 @@ export class EventRenderer {
     filterButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const category = button.getAttribute("data-category");
-
-        filterButtons.forEach((btn) =>
-          btn.classList.remove("bg-blue-500", "text-white"),
-        );
-        button.classList.add("bg-blue-500", "text-white");
-
-        if (category === "all") {
-          this.initializeEvents();
-        } else {
-          this.initializeEvents(category!);
-        }
+        this.initializeEvents(category === "all" ? undefined : category);
       });
     });
   }
@@ -168,13 +157,13 @@ export class EventRenderer {
     bookingButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const eventId = button.getAttribute("data-id");
-        const success = this.eventService.bookEvent(eventId!);
-
-        if (success) {
-          alert("Booking successful!");
-          this.initializeEvents(); // Re-render events to update capacities
-        } else {
-          alert("Booking failed. Event is sold out.");
+        if (eventId) {
+          const success = this.eventService.bookEvent(eventId);
+          if (success) {
+            this.initializeEvents();
+          } else {
+            alert("Failed to book event. Please try again.");
+          }
         }
       });
     });
@@ -186,8 +175,10 @@ export class EventRenderer {
     favoriteButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const eventId = button.getAttribute("data-id");
-        this.eventService.toggleFavorite(eventId!);
-        this.initializeEvents(); // Re-render events to update favorites
+        if (eventId) {
+          this.eventService.toggleFavorite(eventId);
+          this.initializeEvents();
+        }
       });
     });
   }
@@ -198,7 +189,9 @@ export class EventRenderer {
     detailButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const eventId = button.getAttribute("data-id");
-        navigateTo(`/services/${eventId}`);
+        if (eventId) {
+          this.renderEventDetails(eventId);
+        }
       });
     });
   }
@@ -209,43 +202,19 @@ export class EventRenderer {
       const appElement = document.getElementById("app");
       if (appElement) {
         appElement.innerHTML = `
-          <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition hover:scale-105">
-            <div class="p-6">
-              <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold text-blue-600">${event.title}</h2>
-                <i class="${event.icon} text-3xl text-blue-500"></i>
-              </div>
-              <p class="text-gray-600 mb-4">${event.description}</p>
-              <div class="grid grid-cols-2 gap-2 mb-4">
-                <div>
-                  <p class="font-semibold">Price: ${event.price} €</p>
-                  <p class="text-sm text-gray-500">Duration: ${event.duration}</p>
-                </div>
-                <div>
-                  <p class="font-semibold">Capacity: ${event.capacity}</p>
-                  <p class="text-sm text-gray-500">Category: ${event.category}</p>
-                </div>
-              </div>
-              <div class="flex justify-between items-center">
-                <button class="booking-button bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition" 
-                  data-id="${event.id}" ${event.capacity === 0 ? "disabled" : ""}>
-                  ${event.capacity === 0 ? "Sold Out" : "Booking"}
-                </button>
-                <div class="flex space-x-2">
-                  <button class="favorite-button ${event.isFavorite ? "text-red-500" : "text-gray-500"} hover:text-red-600" data-id="${event.id}">
-                    <i class="fas fa-heart"></i>
-                  </button>
-                  <button class="back-button text-blue-500 hover:text-blue-600">
-                    <i class="fas fa-arrow-left"></i> Back
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div class="container mx-auto px-4 py-8">
+            <button class="back-button bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition mb-4">
+              Back
+            </button>
+            <h1 class="text-4xl font-bold text-center mb-8 text-blue-600">${event.title}</h1>
+            <p class="text-gray-600 mb-4">${event.description}</p>
+            <p class="font-semibold">Price: ${event.price} €</p>
+            <p class="text-sm text-gray-500">Duration: ${event.duration}</p>
+            <p class="text-sm text-gray-500">Category: ${event.category}</p>
+            <p class="text-sm text-gray-500">Details: ${event.details}</p>
           </div>
         `;
-        this.attachBookingListeners(); // Attach functionality to the Booking buttons
-        this.attachFavoriteListeners(); // Attach functionality to the Favorite buttons
-        this.attachBackListener(); // Attach functionality to the Back button
+        this.attachBackListener();
       } else {
         console.error("App element not found");
       }
@@ -259,7 +228,7 @@ export class EventRenderer {
 
     if (backButton) {
       backButton.addEventListener("click", () => {
-        navigateTo("/services");
+        this.initializeEvents();
       });
     }
   }
