@@ -148,6 +148,14 @@
         width: 100%;
         margin: 0 auto 20px auto;
       }
+
+      /* Add to existing styles */
+      .calendar-event {
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     </style>
   </head>
   <body>
@@ -1405,6 +1413,10 @@
         document.getElementById("bookTermPopup").remove();
         renderCalendarEvents();
         renderDailyView();
+        renderWeeklyView();
+        if (currentView === "year") {
+          generateYearView();
+        }
         alert("Termin erfolgreich gebucht!");
       }
 
@@ -1685,6 +1697,10 @@
         document.getElementById("editTermPopup").remove();
         renderCalendarEvents();
         renderDailyView();
+        renderWeeklyView();
+        if (currentView === "year") {
+          generateYearView();
+        }
         alert("Termin erfolgreich aktualisiert!");
       }
 
@@ -1696,6 +1712,10 @@
         document.getElementById("termInfoPopup").remove();
         renderCalendarEvents();
         renderDailyView();
+        renderWeeklyView();
+        if (currentView === "year") {
+          generateYearView();
+        }
         alert("Termin erfolgreich gelöscht!");
       }
 
