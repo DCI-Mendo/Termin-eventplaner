@@ -1,9 +1,9 @@
-const routes: { [key: string]: string } = {
-  "/": "home.html",
-  "/calendar": "calendar.html",
-  "/services": "eventsBooking.html",
-  "/about": "about.html",
-  "/contact": "contact.html",
-};
+const routes: { path: string; page: string }[] = [
+  { path: "/", page: "home.html" },
+  { path: "/calendar", page: "calendar.html" },
+  { path: "/services", page: "eventsBooking.html" },
+  { path: "/about", page: "about.html" },
+  { path: "/contact", page: "contact.html" },
+];
 
 export { routes };
