@@ -9,7 +9,7 @@ export function navigateTo(url: string) {
 }
 
 function loadContent(url: string) {
-  const route = routes.find((r) =>
+  const route = routes.find((r: { path: string; page: string }) =>
     new RegExp(`^${r.path.replace(/:\w+/g, "\\w+")}$`).test(url),
   );
   const path = route ? route.page : "404.html"; // Handle dynamic routes
