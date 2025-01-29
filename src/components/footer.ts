@@ -1,108 +1,127 @@
-// TypeScript Compilation File
 interface Subscriber {
     email: string;
     subscribedAt: Date;
 }
 
 export class FooterManager {
-    // Collection of subscribers
     private subscribers: Subscriber[] = [];
 
     constructor() {
         this.initializeEventListeners();
+        this.loadSubscribers();
     }
 
-    // Initialize event listeners
+    // Initialize necessary event listeners  
+    // Inicializar los eventos necesarios  
     private initializeEventListeners(): void {
+        this.setupSubscriptionForm();
+    }
+
+    // Set up the subscription form event  
+    // Configurar el evento del formulario de suscripción  
+    private setupSubscriptionForm(): void {
         const newsletterForm = document.getElementById('newsletter-form') as HTMLFormElement | null;
         if (newsletterForm) {
-            newsletterForm.addEventListener('submit', this.handleNewsletterSubscription.bind(this));
+            newsletterForm.addEventListener('submit', (event) => this.handleNewsletterSubscription(event));
         }
     }
 
-    // Handle newsletter subscription
+    // Handle newsletter subscription  
+    // Manejar la suscripción al newsletter  
     private handleNewsletterSubscription(event: SubmitEvent): void {
         event.preventDefault();
-
         const form = event.target as HTMLFormElement;
         const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement | null;
 
         if (!emailInput) return;
 
         const email = emailInput.value.trim();
-
-        if (this.validateEmail(email)) {
-            this.subscribeToNewsletter(email);
-            this.showSuccessMessage();
-            emailInput.value = '';
-        } else {
-            this.showErrorMessage();
+        if (!this.validateEmail(email)) {
+            this.showMessage('Invalid email format.', 'bg-red-500');
+            this.showMessage('Formato de correo electrónico inválido.', 'bg-red-500');
+            return;
         }
+
+        if (this.isAlreadySubscribed(email)) {
+            this.showMessage('You are already subscribed!', 'bg-yellow-500');
+            this.showMessage('¡Ya estás suscrito!', 'bg-yellow-500');
+            return;
+        }
+
+        this.subscribeToNewsletter(email);
+        this.showMessage('Thank you for subscribing!', 'bg-green-500');
+        this.showMessage('¡Gracias por suscribirte!', 'bg-green-500');
+        emailInput.value = '';
     }
 
-    // Validate email format
+    // Validate email format  
+    // Validar formato de correo electrónico  
     private validateEmail(email: string): boolean {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
 
-    // Subscribe email to the newsletter
+    // Check if email is already subscribed  
+    // Verificar si el correo ya está suscrito  
+    private isAlreadySubscribed(email: string): boolean {
+        return this.subscribers.some(subscriber => subscriber.email === email);
+    }
+
+    // Subscribe email to the newsletter  
+    // Suscribir el correo al boletín  
     private subscribeToNewsletter(email: string): void {
-        const newSubscriber: Subscriber = {
-            email,
-            subscribedAt: new Date()
-        };
+        const newSubscriber: Subscriber = { email, subscribedAt: new Date() };
         this.subscribers.push(newSubscriber);
+        this.saveSubscribers();
         this.logSubscription(newSubscriber);
     }
 
-    // Log subscription
+    // Save subscriber list to localStorage  
+    // Guardar la lista de suscriptores en localStorage  
+    private saveSubscribers(): void {
+        localStorage.setItem('subscribers', JSON.stringify(this.subscribers));
+    }
+
+    // Load subscribers from localStorage  
+    // Cargar suscriptores desde localStorage  
+    private loadSubscribers(): void {
+        const storedSubscribers = localStorage.getItem('subscribers');
+        if (storedSubscribers) {
+            this.subscribers = JSON.parse(storedSubscribers);
+        }
+    }
+
+    // Log subscription to console  
+    // Registrar la suscripción en la consola  
     private logSubscription(subscriber: Subscriber): void {
         console.log(`New subscriber: ${subscriber.email} at ${subscriber.subscribedAt}`);
-        // Simulate sending to backend (in a real scenario, you would make an API call)
+        console.log(`Nuevo suscriptor: ${subscriber.email} a las ${subscriber.subscribedAt}`);
         this.sendSubscriberToBackend(subscriber);
     }
 
-    // Simulate sending subscriber to backend
-    private sendSubscriberToBackend(subscriber: Subscriber): void {
+    // Simulate sending data to the backend  
+    // Simular el envío de datos al backend  
+    private async sendSubscriberToBackend(subscriber: Subscriber): Promise<void> {
         try {
-            // Here you would add the logic to send data to a backend service
-            console.log('Subscriber data sent to backend');
+            console.log('Subscriber data sent to backend:', subscriber);
+            console.log('Datos del suscriptor enviados al backend:', subscriber);
         } catch (error) {
             console.error('Error sending subscriber data', error);
+            console.error('Error al enviar datos del suscriptor', error);
         }
     }
 
-    // Show success message
-    private showSuccessMessage(): void {
+    // Show success or error message in the UI  
+    // Mostrar mensaje de éxito o error en la interfaz de usuario  
+    private showMessage(message: string, bgColor: string): void {
         const messageContainer = document.createElement('div');
-        messageContainer.classList.add('bg-green-500', 'text-white', 'p-2', 'rounded', 'mt-2', 'text-center');
-        messageContainer.textContent = 'Thank you for subscribing!';
-        
-        const form = document.getElementById('newsletter-form');
-        if (form) {
-            form.appendChild(messageContainer);
-            // Remove message after 3 seconds
-            setTimeout(() => {
-                messageContainer.remove();
-            }, 3000);
-        }
-    }
+        messageContainer.classList.add(bgColor, 'text-white', 'p-2', 'rounded', 'mt-2', 'text-center');
+        messageContainer.textContent = message;
 
-    // Show error message
-    private showErrorMessage(): void {
-        const messageContainer = document.createElement('div');
-        messageContainer.classList.add('bg-red-500', 'text-white', 'p-2', 'rounded', 'mt-2', 'text-center');
-        messageContainer.textContent = 'Please enter a valid email address';
-        
         const form = document.getElementById('newsletter-form');
         if (form) {
             form.appendChild(messageContainer);
-            // Remove message after 3 seconds
-            setTimeout(() => {
-                messageContainer.remove();
-            }, 3000);
+            setTimeout(() => messageContainer.remove(), 3000);
         }
     }
 }
-
