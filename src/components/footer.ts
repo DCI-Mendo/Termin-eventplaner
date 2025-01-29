@@ -38,19 +38,17 @@ export class FooterManager {
         const email = emailInput.value.trim();
         if (!this.validateEmail(email)) {
             this.showMessage('Invalid email format.', 'bg-red-500');
-            this.showMessage('Formato de correo electrónico inválido.', 'bg-red-500');
+        
             return;
         }
 
         if (this.isAlreadySubscribed(email)) {
             this.showMessage('You are already subscribed!', 'bg-yellow-500');
-            this.showMessage('¡Ya estás suscrito!', 'bg-yellow-500');
             return;
         }
 
         this.subscribeToNewsletter(email);
         this.showMessage('Thank you for subscribing!', 'bg-green-500');
-        this.showMessage('¡Gracias por suscribirte!', 'bg-green-500');
         emailInput.value = '';
     }
 
@@ -95,7 +93,6 @@ export class FooterManager {
     // Registrar la suscripción en la consola  
     private logSubscription(subscriber: Subscriber): void {
         console.log(`New subscriber: ${subscriber.email} at ${subscriber.subscribedAt}`);
-        console.log(`Nuevo suscriptor: ${subscriber.email} a las ${subscriber.subscribedAt}`);
         this.sendSubscriberToBackend(subscriber);
     }
 
@@ -104,10 +101,8 @@ export class FooterManager {
     private async sendSubscriberToBackend(subscriber: Subscriber): Promise<void> {
         try {
             console.log('Subscriber data sent to backend:', subscriber);
-            console.log('Datos del suscriptor enviados al backend:', subscriber);
         } catch (error) {
             console.error('Error sending subscriber data', error);
-            console.error('Error al enviar datos del suscriptor', error);
         }
     }
 
