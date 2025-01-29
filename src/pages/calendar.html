@@ -1,713 +1,1834 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>Kalender</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #e3f2fd;
-        }
-        h1 {
-            text-align: center;
-            color: #2196F3;
-        }
-        .navigation, .view-buttons {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 10px 0;
-            height: 100px;
-            overflow-y: auto;
-        }
-        .month-selector {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 300px; /* Feste Breite für die Monatsauswahl */
-        }
-        .navigation button, .view-buttons button {
-            margin: 0 5px;
-            padding: 10px 15px;
-            background-color: #2196F3;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-        .navigation button:hover, .view-buttons button:hover {
-            background-color: #1976D2;
-        }
-        table {
-            width: 80%;
-            margin: 0 auto;
-            border-collapse: collapse;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-        }
-        th {
-            background-color: #2196F3;
-            color: #fff;
-        }
-        td:hover {
-            background-color: #bbdefb;
-        }
-        td {
-            height: 80px;
-            vertical-align: top;
-        }
-        .current-day {
-            background-color: #ffeb3b; /* Farbe für den aktuellen Tag */
-        }
-        /* Popup styles */
-        #loginPopup {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-        }
-        #popupContent {
-            background: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        #popupContent input {
-            margin: 5px;
-        }
-        /* Minimal height for empty event rows */
-        .minimal-height td {
-            height: 20px;
-            padding: 5px;
-        }
-        /* Date picker styles */
-        #datePickerContainer,
-        #weekPickerContainer {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-        #datePickerContainer input,
-        #weekPickerContainer input {
-            padding: 5px;
-            font-size: 16px;
-        }
-        .user-buttons {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 10px 0;
-            height: 100px;
-            overflow-y: auto;
-        }
-        .user-buttons button {
-            margin: 0 5px;
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-        .user-buttons button:hover {
-            background-color: #388E3C;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #e3f2fd;
+      }
+      h1 {
+        text-align: center;
+        color: #2196f3;
+      }
+      .navigation,
+      .view-buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 10px 0;
+        height: 100px;
+        overflow-y: auto;
+      }
+      .month-selector {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 300px; /* Feste Breite für die Monatsauswahl */
+      }
+      .navigation button,
+      .view-buttons button {
+        margin: 0 5px;
+        padding: 10px 15px;
+        background-color: #2196f3;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        border-radius: 3px;
+      }
+      .navigation button:hover,
+      .view-buttons button:hover {
+        background-color: #1976d2;
+      }
+      table {
+        width: 80%;
+        margin: 0 auto;
+        border-collapse: collapse;
+        text-align: center;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 10px;
+      }
+      th {
+        background-color: #2196f3;
+        color: #fff;
+      }
+      td:hover {
+        background-color: #bbdefb;
+      }
+      td {
+        height: 80px;
+        vertical-align: top;
+      }
+      .current-day {
+        background-color: #ffeb3b; /* Farbe für den aktuellen Tag */
+      }
+      /* Popup styles */
+      #loginPopup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #popupContent {
+        background: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+      }
+      #popupContent input {
+        margin: 5px;
+      }
+      /* Minimal height for empty event rows */
+      .minimal-height td {
+        height: 20px;
+        padding: 5px;
+      }
+      /* Date picker styles */
+      #datePickerContainer,
+      #weekPickerContainer {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+      #datePickerContainer input,
+      #weekPickerContainer input {
+        padding: 5px;
+        font-size: 16px;
+      }
+      .user-buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 10px 0;
+        height: 100px;
+        overflow-y: auto;
+      }
+      .user-buttons button {
+        margin: 0 5px;
+        padding: 10px 15px;
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        border-radius: 3px;
+      }
+      .user-buttons button:hover {
+        background-color: #388e3c;
+      }
 
-        /* Styles for Year View */
-        #yearContainer {
-            display: none;
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 20px;
-        }
+      /* Styles for Year View */
+      #yearContainer {
+        display: none;
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 20px;
+      }
 
-        .year-month {
-            margin-bottom: 40px;
-        }
+      .year-month {
+        margin-bottom: 40px;
+      }
 
-        .year-month h2 {
-            text-align: center;
-            color: #2196F3;
-        }
+      .year-month h2 {
+        text-align: center;
+        color: #2196f3;
+      }
 
-        .year-month table {
-            width: 100%;
-            margin: 0 auto 20px auto;
-        }
+      .year-month table {
+        width: 100%;
+        margin: 0 auto 20px auto;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div id="loginPopup">
-        <div id="popupContent">
-            <h2>Login</h2>
-            <input id="username" type="text" placeholder="Benutzername" />
-            <input id="password" type="password" placeholder="Passwort" />
-            <button onclick="checkLogin()">Anmelden</button>
-        </div>
+      <div id="popupContent">
+        <h2>Login</h2>
+        <input id="username" type="text" placeholder="Benutzername" />
+        <input id="password" type="password" placeholder="Passwort" />
+        <button onclick="checkLogin()">Anmelden</button>
+      </div>
     </div>
 
     <div class="navigation" id="navigation">
-        <div class="month-selector">
-            <button onclick="changeMonth(-1)">&#8592;</button>
-            <span id="monthName">April 2024</span>
-            <button onclick="changeMonth(1)">&#8594;</button>
-        </div>
+      <div class="month-selector">
+        <button onclick="changeMonth(-1)">&#8592;</button>
+        <span id="monthName">April 2024</span>
+        <button onclick="changeMonth(1)">&#8594;</button>
+      </div>
     </div>
 
+    <!-- Füge den "Termin buchen" Button zu den view-buttons hinzu -->
     <div class="view-buttons">
-        <button onclick="setView('day')">Tagesansicht</button>
-        <button onclick="setView('week')">Wochenansicht</button>
-        <button onclick="setView('month')">Monatsansicht</button>
-        <button onclick="setView('year')">Jahresansicht</button>
+      <button onclick="setView('day')">Tagesansicht</button>
+      <button onclick="setView('week')">Wochenansicht</button>
+      <button onclick="setView('month')">Monatsansicht</button>
+      <button onclick="setView('year')">Jahresansicht</button>
+      <button onclick="openBookTermPopup()">Termin buchen</button> <!-- Neuer Button -->
     </div>
 
-    <div class="user-buttons" id="userButtons" style="display: none;">
-        <!-- User buttons will be generated here -->
+    <div class="user-buttons" id="userButtons" style="display: none">
+      <!-- User buttons will be generated here -->
     </div>
 
     <h1 id="viewTitle">Monatsansicht</h1>
 
     <div id="calendarContainer">
-        <table id="calendarTable">
-            <thead>
-                <tr>
-                    <th>Mo</th>
-                    <th>Di</th>
-                    <th>Mi</th>
-                    <th>Do</th>
-                    <th>Fr</th>
-                    <th>Sa</th>
-                    <th>So</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Calendar will be generated here -->
-            </tbody>
-        </table>
+      <table id="calendarTable">
+        <thead>
+          <tr>
+            <th>Mo</th>
+            <th>Di</th>
+            <th>Mi</th>
+            <th>Do</th>
+            <th>Fr</th>
+            <th>Sa</th>
+            <th>So</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Calendar will be generated here -->
+        </tbody>
+      </table>
     </div>
 
     <!-- Wochenansicht -->
-    <div id="weeklyContainer" style="display: none;">
-        <div id="weekPickerContainer">
-            <input type="week" id="weeklyDate" onchange="updateWeeklyView()" />
-        </div>
-        <table id="weeklyTable">
-            <thead>
-                <tr>
-                    <th>Montag</th>
-                    <th>Dienstag</th>
-                    <th>Mittwoch</th>
-                    <th>Donnerstag</th>
-                    <th>Freitag</th>
-                    <th>Samstag</th>
-                    <th>Sonntag</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td contenteditable="true"></td>
-                    <td contenteditable="true"></td>
-                    <td contenteditable="true"></td>
-                    <td contenteditable="true"></td>
-                    <td contenteditable="true"></td>
-                    <td contenteditable="true"></td>
-                    <td contenteditable="true"></td>
-                </tr>
-            </tbody>
-        </table>
+    <div id="weeklyContainer" style="display: none">
+      <div id="weekPickerContainer">
+        <input type="week" id="weeklyDate" onchange="updateWeeklyView()" />
+      </div>
+      <table id="weeklyTable">
+        <thead>
+          <tr>
+            <th>Montag</th>
+            <th>Dienstag</th>
+            <th>Mittwoch</th>
+            <th>Donnerstag</th>
+            <th>Freitag</th>
+            <th>Samstag</th>
+            <th>Sonntag</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td id="week-Mo" style="position: relative; height: 100px;"></td>
+            <td id="week-Di" style="position: relative; height: 100px;"></td>
+            <td id="week-Mi" style="position: relative; height: 100px;"></td>
+            <td id="week-Do" style="position: relative; height: 100px;"></td>
+            <td id="week-Fr" style="position: relative; height: 100px;"></td>
+            <td id="week-Sa" style="position: relative; height: 100px;"></td>
+            <td id="week-So" style="position: relative; height: 100px;"></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- Tagesansicht -->
-    <div id="dailyContainer" style="display: none;">
-        <div id="datePickerContainer">
-            <input type="date" id="dailyDate" onchange="updateDailyView()" />
-        </div>
-        <table id="dailyTable">
-            <thead>
-                <tr>
-                    <th>Uhrzeit</th>
-                    <th>Event</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>00:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>01:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>02:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>03:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>04:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>05:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>06:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>07:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>08:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>09:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>10:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>11:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>12:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>13:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>14:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>15:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>16:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>17:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>18:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>19:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>20:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>21:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>22:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-                <tr>
-                    <td>23:00</td>
-                    <td contenteditable="true"></td>
-                </tr>
-            </tbody>
-        </table>
+    <div id="dailyContainer" style="display: none">
+      <div id="datePickerContainer">
+        <input type="date" id="dailyDate" onchange="updateDailyView()" />
+      </div>
+    <table id="dailyTable">
+        <thead>
+            <tr>
+                <th>Uhrzeit</th>
+                <th>Event</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be generated by JavaScript -->
+        </tbody>
+    </table>
+    <script>
+        const tbody = document.querySelector('#dailyTable tbody');
+        for (let hour = 0; hour < 24; hour++) {
+            const time = `${hour.toString().padStart(2, '0')}:00`;
+            tbody.innerHTML += `<tr><td>${time}</td><td contenteditable="true"></td></tr>`;
+        }
+    </script>
     </div>
 
     <!-- Jahresansicht -->
     <div id="yearContainer">
-        <!-- Monate werden hier generiert -->
+      <!-- Monate werden hier generiert -->
     </div>
 
     <script>
-        const users = [
-            { id: "001", username: "Admin", password: "admin", role: "admin" },
-            { id: "002", username: "user", password: "user", role: "user" }
-        ];
+      // Initialize users from localStorage or set default users
+      let users = JSON.parse(localStorage.getItem("users")) || [
+        {
+          id: "001",
+          username: "Admin",
+          password: "admin",
+          role: "admin",
+          firstLogin: false,
+        },
+        {
+          id: "002",
+          username: "user",
+          password: "user",
+          role: "user",
+          firstLogin: false,
+        },
+      ];
 
-        function checkLogin() {
-            const userInput = document.getElementById('username').value;
-            const passInput = document.getElementById('password').value;
-            const user = users.find(u => u.username === userInput && u.password === passInput);
-            if (user) {
-                // You can store user info here if needed
-                document.getElementById('loginPopup').style.display = 'none';
-                if (user.role === 'admin') {
-                    displayUserButtons();
-                }
-            } else {
-                alert('Falsche Zugangsdaten!');
-            }
+      // Save users to localStorage
+      function saveUsers() {
+        localStorage.setItem("users", JSON.stringify(users));
+      }
+
+      // Initialize users on page load
+      function initUsers() {
+        if (!localStorage.getItem("users")) {
+          saveUsers();
         }
+      }
 
-        function displayUserButtons() {
-            const userButtonsContainer = document.getElementById('userButtons');
-            userButtonsContainer.style.display = 'flex';
-            users.forEach(user => {
-                const button = document.createElement('button');
-                button.textContent = user.username;
-                userButtonsContainer.appendChild(button);
-            });
+      window.onload = initUsers;
+
+      function checkLogin() {
+        const userInput = document.getElementById("username").value;
+        const passInput = document.getElementById("password").value;
+        const user = users.find(
+          (u) => u.username === userInput && u.password === passInput
+        );
+        if (user) {
+          // Store logged-in user ID
+          localStorage.setItem("loggedInUser", user.id);
+          document.getElementById("loginPopup").style.display = "none";
+          if (user.role === "admin") {
+            displayUserButtons();
+          }
+          if (user.firstLogin) {
+            openChangePasswordPopup(user.id);
+          }
+        } else {
+          alert("Falsche Zugangsdaten!");
         }
+      }
 
-        const monthNames = [
-            'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-            'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
-        ];
-        let currentMonth = new Date().getMonth();
-        let currentYear = new Date().getFullYear();
-        let currentView = 'month';
-
-        function updateMonth() {
-            document.getElementById('monthName').textContent = monthNames[currentMonth] + ' ' + currentYear;
-            generateCalendar(currentMonth, currentYear);
-        }
-
-        function changeMonth(direction) {
-            currentMonth += direction;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            } else if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            }
-            updateMonth();
-        }
-
-        function setView(view) {
-            currentView = view;
-            document.getElementById('viewTitle').textContent = 
-                view === 'day' ? 'Tagesansicht' :
-                view === 'week' ? 'Wochenansicht' :
-                view === 'month' ? 'Monatsansicht' :
-                'Jahresansicht';
-            
-            document.getElementById('calendarContainer').style.display = view === 'month' ? 'block' : 'none';
-            document.getElementById('dailyContainer').style.display = view === 'day' ? 'block' : 'none';
-            document.getElementById('weeklyContainer').style.display = view === 'week' ? 'block' : 'none';
-            document.getElementById('yearContainer').style.display = view === 'year' ? 'block' : 'none';
-            
-            // Aktualisiere die Sichtbarkeit der Navigation
-            // Navigation ausblenden für 'day', 'week' und 'year' Ansichten
-            document.getElementById('navigation').style.display = 
-                (view === 'day' || view === 'week' || view === 'year') ? 'none' : 'flex';
-            
-            if(view === 'day') {
-                adjustDailyView();
-                setDefaultDate();
-            } else if(view === 'week') {
-                highlightCurrentDayInWeek();
-            } else if(view === 'month') {
-                highlightCurrentDayInMonth();
-            } else if(view === 'year') {
-                generateYearView();
-            }
-        }
-
-        function setDefaultDate() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('dailyDate').value = today;
-        }
-
-        function updateDailyView() {
-            const selectedDate = document.getElementById('dailyDate').value;
-            // Hier können Sie die Logik hinzufügen, um Ereignisse für das ausgewählte Datum anzuzeigen
-            console.log('Ausgewähltes Datum:', selectedDate);
-        }
-
-        function updateWeeklyView() {
-            removeWeeklyHighlight();
-
-            const weeklyDateInput = document.getElementById('weeklyDate').value;
-            if (!weeklyDateInput) return;
-
-            // selectedYear und selectedWeek aus "YYYY-Www" ermitteln
-            const [selectedYear, selectedWeek] = weeklyDateInput.split('-W').map(Number);
-            console.log("Ausgewählte Woche:", selectedYear, selectedWeek);
-
-            // Ersten Tag (Montag) der ausgewählten Kalenderwoche berechnen
-            const firstDayOfWeek = getDateOfISOWeek(selectedYear, selectedWeek);
-
-            // Tabelle leeren
-            const weeklyTable = document.getElementById('weeklyTable').getElementsByTagName('tbody')[0];
-            weeklyTable.innerHTML = '';
-
-            // Neue Zeile anlegen
-            const row = document.createElement('tr');
-
-            // Sieben Tage eintragen (Mo–So)
-            for (let i = 0; i < 7; i++) {
-                const cell = document.createElement('td');
-                cell.contentEditable = true;
-
-                // Datum berechnen: Montag + i Tage
-                const currentDate = new Date(firstDayOfWeek);
-                currentDate.setDate(currentDate.getDate() + i);
-
-                // Inhalt setzen (z. B. "DD.MM.YYYY")
-                const day = String(currentDate.getDate()).padStart(2,'0');
-                const month = String(currentDate.getMonth()+1).padStart(2,'0');
-                const year = currentDate.getFullYear();
-                cell.textContent = `${day}.${month}.${year}`;
-
-                // Falls dieser Tag "heute" ist, markieren
-                const today = new Date();
-                if (
-                    currentDate.getDate() === today.getDate() &&
-                    currentDate.getMonth() === today.getMonth() &&
-                    currentDate.getFullYear() === today.getFullYear()
-                ) {
-                    cell.classList.add('current-day');
-                }
-
-                row.appendChild(cell);
-            }
-
-            weeklyTable.appendChild(row);
-        }
-
-        // Liefert das Montag-Datum der gegebenen ISO-Woche in year/week
-        function getDateOfISOWeek(year, week) {
-            const simple = new Date(year, 0, 1 + (week - 1) * 7);
-            const dow = simple.getDay();
-            const diff = simple.getDate() - dow + (dow === 0 ? -6 : 1);
-            return new Date(simple.setDate(diff));
-        }
-
-        function generateCalendar(month, year) {
-            const calendarTable = document.getElementById('calendarTable').getElementsByTagName('tbody')[0];
-            calendarTable.innerHTML = '';
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            let date = 1;
-            let startDay = firstDay === 0 ? 6 : firstDay - 1;
-
-            for (let i = 0; i < 6; i++) {
-                let row = document.createElement('tr');
-                for (let j = 0; j < 7; j++) {
-                    let cell = document.createElement('td');
-                    if (i === 0 && j < startDay) {
-                        cell.innerHTML = '';
-                    } else if (date > daysInMonth) {
-                        cell.innerHTML = '';
-                    } else {
-                        cell.innerHTML = date;
-                        if (new Date().getDate() === date && new Date().getMonth() === month && new Date().getFullYear() === year) {
-                            cell.classList.add('current-day');
-                        }
-                        date++;
-                    }
-                    row.appendChild(cell);
-                }
-                calendarTable.appendChild(row);
-                if (date > daysInMonth) {
-                    break;
-                }
-            }
-        }
-
-        function highlightCurrentDayInWeek() {
-            removeWeeklyHighlight(); 
-            const today = new Date();
-            const [currentYear, currentWeek] = getWeekNumber(today);
-
-            // Debug: Prüfen, was eingegeben und was berechnet wird
-            console.log("Heutiges Datum:", today);
-            console.log("ISO-Kalenderwoche von heute:", currentWeek);
-            
-            const weeklyDateInput = document.getElementById('weeklyDate').value;
-            if (!weeklyDateInput) return;
-            const [selectedYear, selectedWeek] = weeklyDateInput.split('-W').map(Number);
-            console.log("Ausgewählte Woche (Jahr,KW):", selectedYear, selectedWeek);
-
-            // Nur markieren, wenn es sich um die aktuelle Kalenderwoche handelt
-            if (selectedYear === currentYear && selectedWeek === currentWeek) {
-                const dayOfWeek = today.getDay();
-                const weeklyTable = document.getElementById('weeklyTable').getElementsByTagName('tbody')[0];
-                const rows = weeklyTable.getElementsByTagName('tr');
-                for (let row of rows) {
-                    const cells = row.getElementsByTagName('td');
-                    for (let i = 0; i < cells.length; i++) {
-                        if (i === (dayOfWeek === 0 ? 6 : dayOfWeek - 1)) {
-                            cells[i].classList.add('current-day');
-                        }
-                    }
-                }
-            }
-        }
-
-        function highlightCurrentDayInMonth() {
-            const today = new Date();
-            const calendarTable = document.getElementById('calendarTable').getElementsByTagName('tbody')[0];
-            const rows = calendarTable.getElementsByTagName('tr');
-            for (let row of rows) {
-                const cells = row.getElementsByTagName('td');
-                for (let cell of cells) {
-                    if (cell.textContent == today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
-                        cell.classList.add('current-day');
-                    } else {
-                        cell.classList.remove('current-day');
-                    }
-                }
-            }
-        }
-
-        function adjustDailyView() {
-            const dailyTable = document.getElementById('dailyTable').getElementsByTagName('tbody')[0];
-            const rows = dailyTable.getElementsByTagName('tr');
-            for(let row of rows) {
-                const eventCell = row.getElementsByTagName('td')[1];
-                if(eventCell.textContent.trim() === '') {
-                    row.classList.add('minimal-height');
-                } else {
-                    row.classList.remove('minimal-height');
-                }
-            }
-        }
-
-        // Re-adjust daily view when content is edited
-        document.getElementById('dailyTable').addEventListener('input', function(e) {
-            if(e.target && e.target.nodeName === 'TD') {
-                const row = e.target.parentElement;
-                const eventCell = row.getElementsByTagName('td')[1];
-                if(eventCell.textContent.trim() === '') {
-                    row.classList.add('minimal-height');
-                } else {
-                    row.classList.remove('minimal-height');
-                }
-            }
+      function displayUserButtons() {
+        const userButtonsContainer = document.getElementById("userButtons");
+        userButtonsContainer.innerHTML = ""; // Clear existing buttons
+        users.forEach((user) => {
+          const button = document.createElement("button");
+          button.textContent = user.username;
+          userButtonsContainer.appendChild(button);
         });
 
-        function removeWeeklyHighlight() {
-            const weeklyTable = document.getElementById('weeklyTable').getElementsByTagName('tbody')[0];
-            // Alle Zeilen löschen oder vorhandene Zellen von .current-day befreien
-            const rows = weeklyTable.getElementsByTagName('tr');
-            for (let row of rows) {
-                const cells = row.getElementsByTagName('td');
-                for (let cell of cells) {
-                    cell.classList.remove('current-day');
-                }
-            }
+        // Get the currently logged-in user
+        const loggedInUserId = localStorage.getItem("loggedInUser");
+        const currentUser = users.find((u) => u.id === loggedInUserId);
+
+        // If current user is admin, add Edit button
+        if (currentUser && currentUser.role === "admin") {
+          const editButton = document.createElement("button");
+          editButton.textContent = "Edit Benutzer";
+          editButton.onclick = openAddUserPopup;
+          userButtonsContainer.appendChild(editButton);
         }
 
-        // Ermittelt die ISO-Kalenderwoche (1–53) einer gegebenen Date
-        function getWeekNumber(d) {
-            // Kopie des Datums, damit Original nicht verändert wird
-            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            // Donnerstag einer Woche finden
-            date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
-            // Erster Tag des Jahres
-            const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-            // Kalenderwoche berechnen
-            const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
-            return [date.getUTCFullYear(), weekNo];
+        // **Neue Zeile hinzufügen, um die Benutzerbuttons sichtbar zu machen**
+        userButtonsContainer.style.display = "flex";
+      }
+
+      // Function to open add user popup
+      function openAddUserPopup() {
+        const addPopup = document.createElement("div");
+        addPopup.id = "addUserPopup";
+        addPopup.style.position = "fixed";
+        addPopup.style.top = "0";
+        addPopup.style.left = "0";
+        addPopup.style.width = "100%";
+        addPopup.style.height = "100%";
+        addPopup.style.background = "rgba(0,0,0,0.5)";
+        addPopup.style.display = "flex";
+        addPopup.style.justifyContent = "center";
+        addPopup.style.alignItems = "center";
+        addPopup.style.zIndex = "1000";
+
+        const popupContent = document.createElement("div");
+        popupContent.id = "popupContent";
+        popupContent.style.background = "#fff";
+        popupContent.style.padding = "20px";
+        popupContent.style.borderRadius = "5px";
+        popupContent.style.textAlign = "center";
+        popupContent.style.width = "500px"; // Erweiterte Breite für Benutzerliste und Bearbeitung
+
+        // Titel für Benutzerverwaltung
+        const title = document.createElement("h2");
+        title.textContent = "Benutzer verwalten";
+        popupContent.appendChild(title);
+
+        // Abschnitt zum Hinzufügen eines neuen Benutzers
+        const addUserSection = document.createElement("div");
+        addUserSection.style.marginBottom = "20px";
+
+        const addTitle = document.createElement("h3");
+        addTitle.textContent = "Neuen Benutzer hinzufügen";
+        addUserSection.appendChild(addTitle);
+
+        const usernameInput = document.createElement("input");
+        usernameInput.type = "text";
+        usernameInput.id = "newUsername";
+        usernameInput.placeholder = "Benutzername";
+        usernameInput.style.width = "80%";
+        usernameInput.style.margin = "5px 0";
+        addUserSection.appendChild(usernameInput);
+
+        const roleSelect = document.createElement("select");
+        roleSelect.id = "newUserRole";
+        roleSelect.style.width = "85%";
+        roleSelect.style.margin = "5px 0";
+        const roles = ["user", "admin"];
+        roles.forEach((role) => {
+          const option = document.createElement("option");
+          option.value = role;
+          option.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+          roleSelect.appendChild(option);
+        });
+        addUserSection.appendChild(roleSelect);
+
+        const addButton = document.createElement("button");
+        addButton.textContent = "Hinzufügen";
+        addButton.style.margin = "10px 5px";
+        addButton.onclick = addUser;
+        addUserSection.appendChild(addButton);
+
+        addUserSection.appendChild(document.createElement("hr")); // Trennlinie
+
+        // Abschnitt zum Entfernen und Bearbeiten von Benutzern
+        const manageUserSection = document.createElement("div");
+        manageUserSection.style.marginTop = "20px";
+
+        const manageTitle = document.createElement("h3");
+        manageTitle.textContent = "Benutzer bearbeiten";
+        manageUserSection.appendChild(manageTitle);
+
+        const userList = document.createElement("ul");
+        userList.style.listStyleType = "none";
+        userList.style.padding = "0";
+
+        users.forEach((user) => {
+          // Verhindern, dass der Benutzer "Admin" entfernt oder bearbeitet wird
+          if (user.username === "Admin") return;
+
+          const userItem = document.createElement("li");
+          userItem.style.margin = "5px 0";
+          userItem.style.display = "flex";
+          userItem.style.justifyContent = "space-between";
+          userItem.style.alignItems = "center";
+
+          const usernameSpan = document.createElement("span");
+          usernameSpan.textContent = user.username + ` (${user.role})`;
+          userItem.appendChild(usernameSpan);
+
+          const buttonContainer = document.createElement("div");
+
+          // Entfernen-Button
+          const removeButton = document.createElement("button");
+          removeButton.textContent = "Entfernen";
+          removeButton.style.backgroundColor = "#f44336";
+          removeButton.style.color = "#fff";
+          removeButton.style.border = "none";
+          removeButton.style.padding = "5px 10px";
+          removeButton.style.cursor = "pointer";
+          removeButton.style.borderRadius = "3px";
+          removeButton.style.marginRight = "5px";
+          removeButton.onclick = function () {
+            removeUser(user.id);
+          };
+          buttonContainer.appendChild(removeButton);
+
+          // Bearbeiten-Button
+          const editButton = document.createElement("button");
+          editButton.textContent = "Bearbeiten";
+          editButton.style.backgroundColor = "#2196F3";
+          editButton.style.color = "#fff";
+          editButton.style.border = "none";
+          editButton.style.padding = "5px 10px";
+          editButton.style.cursor = "pointer";
+          editButton.style.borderRadius = "3px";
+          editButton.onclick = function () {
+            editUser(user.id);
+          };
+          buttonContainer.appendChild(editButton);
+
+          userItem.appendChild(buttonContainer);
+          userList.appendChild(userItem);
+        });
+
+        manageUserSection.appendChild(userList);
+        popupContent.appendChild(addUserSection);
+        popupContent.appendChild(manageUserSection);
+
+        // Abbrechen-Button
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Abbrechen";
+        cancelButton.style.marginTop = "20px";
+        cancelButton.onclick = function () {
+          document.getElementById("addUserPopup").remove();
+        };
+        popupContent.appendChild(cancelButton);
+
+        addPopup.appendChild(popupContent);
+        document.body.appendChild(addPopup);
+      }
+
+      // Function to add a new user
+      function addUser() {
+        const username = document.getElementById("newUsername").value.trim();
+        const role = document.getElementById("newUserRole").value;
+
+        if (!username) {
+          alert("Benutzername darf nicht leer sein!");
+          return;
         }
 
-        function generateYearView() {
-            const yearContainer = document.getElementById('yearContainer');
-            yearContainer.innerHTML = ''; // Clear previous content
-
-            for (let month = 0; month < 12; month++) {
-                const monthDiv = document.createElement('div');
-                monthDiv.className = 'year-month';
-
-                const monthTitle = document.createElement('h2');
-                monthTitle.textContent = `${monthNames[month]} ${currentYear}`;
-                monthDiv.appendChild(monthTitle);
-
-                const monthTable = generateMonthTable(month, currentYear);
-                monthDiv.appendChild(monthTable);
-
-                yearContainer.appendChild(monthDiv);
-            }
-
-            highlightCurrentMonthInYearView(); // Optional
+        // Check if username already exists
+        if (users.some((u) => u.username === username)) {
+          alert("Benutzername existiert bereits!");
+          return;
         }
 
-        function generateMonthTable(month, year) {
-            const table = document.createElement('table');
-            const thead = document.createElement('thead');
-            const headerRow = document.createElement('tr');
-            ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].forEach(day => {
-                const th = document.createElement('th');
-                th.textContent = day;
-                headerRow.appendChild(th);
-            });
-            thead.appendChild(headerRow);
-            table.appendChild(thead);
+        // Create new user object
+        const newUser = {
+          id: generateUserId(),
+          username: username,
+          password: "user1234", // default password
+          role: role,
+          firstLogin: true,
+        };
 
-            const tbody = document.createElement('tbody');
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            let date = 1;
-            let startDay = firstDay === 0 ? 6 : firstDay - 1;
+        users.push(newUser);
+        saveUsers();
 
-            for (let i = 0; i < 6; i++) {
-                const row = document.createElement('tr');
-                for (let j = 0; j < 7; j++) {
-                    const cell = document.createElement('td');
-                    if (i === 0 && j < startDay) {
-                        cell.innerHTML = '';
-                    } else if (date > daysInMonth) {
-                        cell.innerHTML = '';
-                    } else {
-                        cell.textContent = date;
-                        if (currentMonth === month && currentYear === new Date().getFullYear() && date === new Date().getDate()) {
-                            cell.classList.add('current-day');
-                        }
-                        date++;
-                    }
-                    row.appendChild(cell);
-                }
-                tbody.appendChild(row);
-                if (date > daysInMonth) {
-                    break;
-                }
-            }
-            table.appendChild(tbody);
-            return table;
+        document.getElementById("addUserPopup").remove();
+        alert("Benutzer erfolgreich hinzugefügt!");
+      }
+
+      // Function to generate unique user ID
+      function generateUserId() {
+        return Date.now().toString(); // simple unique ID based on timestamp
+      }
+
+      // Function to open change password popup
+      function openChangePasswordPopup(userId) {
+        const changePopup = document.createElement("div");
+        changePopup.id = "changePasswordPopup";
+        changePopup.style.position = "fixed";
+        changePopup.style.top = "0";
+        changePopup.style.left = "0";
+        changePopup.style.width = "100%";
+        changePopup.style.height = "100%";
+        changePopup.style.background = "rgba(0,0,0,0.5)";
+        changePopup.style.display = "flex";
+        changePopup.style.justifyContent = "center";
+        changePopup.style.alignItems = "center";
+        changePopup.style.zIndex = "1000";
+
+        const popupContent = document.createElement("div");
+        popupContent.id = "popupContent";
+        popupContent.style.background = "#fff";
+        popupContent.style.padding = "20px";
+        popupContent.style.borderRadius = "5px";
+        popupContent.style.textAlign = "center";
+        popupContent.style.width = "300px";
+
+        const title = document.createElement("h2");
+        title.textContent = "Passwort ändern";
+        popupContent.appendChild(title);
+
+        const newPasswordInput = document.createElement("input");
+        newPasswordInput.type = "password";
+        newPasswordInput.id = "newPassword";
+        newPasswordInput.placeholder = "Neues Passwort";
+        newPasswordInput.style.width = "80%";
+        newPasswordInput.style.margin = "5px 0";
+        popupContent.appendChild(newPasswordInput);
+
+        const confirmPasswordInput = document.createElement("input");
+        confirmPasswordInput.type = "password";
+        confirmPasswordInput.id = "confirmPassword";
+        confirmPasswordInput.placeholder = "Passwort bestätigen";
+        confirmPasswordInput.style.width = "80%";
+        confirmPasswordInput.style.margin = "5px 0";
+        popupContent.appendChild(confirmPasswordInput);
+
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Speichern";
+        saveButton.style.margin = "10px 5px";
+        saveButton.onclick = function () {
+          changePassword(userId);
+        };
+        popupContent.appendChild(saveButton);
+
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Abbrechen";
+        cancelButton.style.margin = "10px 5px";
+        cancelButton.onclick = function () {
+          document.getElementById("changePasswordPopup").remove();
+        };
+        popupContent.appendChild(cancelButton);
+
+        changePopup.appendChild(popupContent);
+        document.body.appendChild(changePopup);
+      }
+
+      // Function to change password
+      function changePassword(userId) {
+        const newPassword = document.getElementById("newPassword").value;
+        const confirmPassword =
+          document.getElementById("confirmPassword").value;
+
+        if (newPassword !== confirmPassword) {
+          alert("Passwörter stimmen nicht überein!");
+          return;
         }
 
-        // Optional: Highlight current month in year view
-        function highlightCurrentMonthInYearView() {
-            const yearContainer = document.getElementById('yearContainer');
-            const monthDivs = yearContainer.getElementsByClassName('year-month');
-            for (let div of monthDivs) {
-                const title = div.getElementsByTagName('h2')[0];
-                if (title.textContent.startsWith(monthNames[new Date().getMonth()])) {
-                    title.style.backgroundColor = '#ffeb3b';
-                } else {
-                    title.style.backgroundColor = '';
-                }
-            }
+        if (newPassword.length < 4) {
+          alert("Passwort muss mindestens 4 Zeichen lang sein.");
+          return;
         }
 
+        const user = users.find((u) => u.id === userId);
+        if (user) {
+          user.password = newPassword;
+          user.firstLogin = false;
+          saveUsers();
+          document.getElementById("changePasswordPopup").remove();
+          alert("Passwort erfolgreich geändert!");
+        }
+      }
+
+      const monthNames = [
+        "Januar",
+        "Februar",
+        "März",
+        "April",
+        "Mai",
+        "Juni",
+        "Juli",
+        "August",
+        "September",
+        "Oktober",
+        "November",
+        "Dezember",
+      ];
+      let currentMonth = new Date().getMonth();
+      let currentYear = new Date().getFullYear();
+      let currentView = "month";
+
+      function updateMonth() {
+        document.getElementById("monthName").textContent =
+          monthNames[currentMonth] + " " + currentYear;
+        generateCalendar(currentMonth, currentYear);
+        renderCalendarEvents(); // Termine anzeigen
+        if (currentView === "week") {
+          renderWeeklyView();
+        }
+      }
+
+      function changeMonth(direction) {
+        currentMonth += direction;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        } else if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
         updateMonth();
+      }
+
+      function setView(view) {
+        currentView = view;
+        document.getElementById("viewTitle").textContent =
+          view === "day"
+            ? "Tagesansicht"
+            : view === "week"
+            ? "Wochenansicht"
+            : view === "month"
+            ? "Monatsansicht"
+            : "Jahresansicht";
+
+        document.getElementById("calendarContainer").style.display =
+          view === "month" ? "block" : "none";
+        document.getElementById("dailyContainer").style.display =
+          view === "day" ? "block" : "none";
+        document.getElementById("weeklyContainer").style.display =
+          view === "week" ? "block" : "none";
+        document.getElementById("yearContainer").style.display =
+          view === "year" ? "block" : "none";
+
+        // Aktualisiere die Sichtbarkeit der Navigation
+        // Navigation ausblenden für 'day', 'week' und 'year' Ansichten
+        document.getElementById("navigation").style.display =
+          view === "day" || view === "week" || view === "year"
+            ? "none"
+            : "flex";
+
+        if (view === "day") {
+          adjustDailyView();
+          setDefaultDate();
+        } else if (view === "week") {
+          renderWeeklyView();
+          highlightCurrentDayInWeek();
+        } else if (view === "month") {
+          highlightCurrentDayInMonth();
+          renderCalendarEvents();
+        } else if (view === "year") {
+          generateYearView();
+        }
+      }
+
+      function setDefaultDate() {
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("dailyDate").value = today;
+      }
+
+      function updateDailyView() {
+        const selectedDate = document.getElementById("dailyDate").value;
+        // Hier können Sie die Logik hinzufügen, um Ereignisse für das ausgewählte Datum anzuzeigen
+        console.log("Ausgewähltes Datum:", selectedDate);
+      }
+
+      function updateWeeklyView() {
+        removeWeeklyHighlight();
+        renderWeeklyView();
+        highlightCurrentDayInWeek();
+      }
+
+      // Liefert das Montag-Datum der gegebenen ISO-Woche in year/week
+      function getDateOfISOWeek(year, week) {
+        const simple = new Date(year, 0, 1 + (week - 1) * 7);
+        const dow = simple.getDay();
+        const diff = simple.getDate() - dow + (dow === 0 ? -6 : 1);
+        return new Date(simple.setDate(diff));
+      }
+
+      function generateCalendar(month, year) {
+        const calendarTable = document
+          .getElementById("calendarTable")
+          .getElementsByTagName("tbody")[0];
+        calendarTable.innerHTML = "";
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        let date = 1;
+        let startDay = firstDay === 0 ? 6 : firstDay - 1;
+
+        for (let i = 0; i < 6; i++) {
+          let row = document.createElement("tr");
+          for (let j = 0; j < 7; j++) {
+            let cell = document.createElement("td");
+            if (i === 0 && j < startDay) {
+              cell.innerHTML = "";
+            } else if (date > daysInMonth) {
+              cell.innerHTML = "";
+            } else {
+              cell.innerHTML = date;
+              if (
+                new Date().getDate() === date &&
+                new Date().getMonth() === month &&
+                new Date().getFullYear() === year
+              ) {
+                cell.classList.add("current-day");
+              }
+              date++;
+            }
+            row.appendChild(cell);
+          }
+          calendarTable.appendChild(row);
+          if (date > daysInMonth) {
+            break;
+          }
+        }
+      }
+
+      function highlightCurrentDayInWeek() {
+        removeWeeklyHighlight();
+        const today = new Date();
+        const [currentYear, currentWeek] = getWeekNumber(today);
+
+        // Debug: Prüfen, was eingegeben und was berechnet wird
+        console.log("Heutiges Datum:", today);
+        console.log("ISO-Kalenderwoche von heute:", currentWeek);
+
+        const weeklyDateInput = document.getElementById("weeklyDate").value;
+        if (!weeklyDateInput) return;
+        const [selectedYear, selectedWeek] = weeklyDateInput
+          .split("-W")
+          .map(Number);
+        console.log("Ausgewählte Woche (Jahr,KW):", selectedYear, selectedWeek);
+
+        // Nur markieren, wenn es sich um die aktuelle Kalenderwoche handelt
+        if (selectedYear === currentYear && selectedWeek === currentWeek) {
+          const dayOfWeek = today.getDay();
+          const weeklyTable = document
+            .getElementById("weeklyTable")
+            .getElementsByTagName("tbody")[0];
+          const rows = weeklyTable.getElementsByTagName("tr");
+          for (let row of rows) {
+            const cells = row.getElementsByTagName("td");
+            for (let i = 0; i < cells.length; i++) {
+              if (i === (dayOfWeek === 0 ? 6 : dayOfWeek - 1)) {
+                cells[i].classList.add("current-day");
+              }
+            }
+          }
+        }
+      }
+
+      function highlightCurrentDayInMonth() {
+        const today = new Date();
+        const calendarTable = document
+          .getElementById("calendarTable")
+          .getElementsByTagName("tbody")[0];
+        const rows = calendarTable.getElementsByTagName("tr");
+        for (let row of rows) {
+          const cells = row.getElementsByTagName("td");
+          for (let cell of cells) {
+            if (
+              cell.textContent == today.getDate() &&
+              currentMonth === today.getMonth() &&
+              currentYear === today.getFullYear()
+            ) {
+              cell.classList.add("current-day");
+            } else {
+              cell.classList.remove("current-day");
+            }
+          }
+        }
+      }
+
+      function adjustDailyView() {
+        const dailyTable = document
+          .getElementById("dailyTable")
+          .getElementsByTagName("tbody")[0];
+        const rows = dailyTable.getElementsByTagName("tr");
+        for (let row of rows) {
+          const eventCell = row.getElementsByTagName("td")[1];
+          if (eventCell.textContent.trim() === "") {
+            row.classList.add("minimal-height");
+          } else {
+            row.classList.remove("minimal-height");
+          }
+        }
+      }
+
+      // Re-adjust daily view when content is edited
+      document
+        .getElementById("dailyTable")
+        .addEventListener("input", function (e) {
+          if (e.target && e.target.nodeName === "TD") {
+            const row = e.target.parentElement;
+            const eventCell = row.getElementsByTagName("td")[1];
+            if (eventCell.textContent.trim() === "") {
+              row.classList.add("minimal-height");
+            } else {
+              row.classList.remove("minimal-height");
+            }
+          }
+        });
+
+      function removeWeeklyHighlight() {
+        const weeklyTable = document
+          .getElementById("weeklyTable")
+          .getElementsByTagName("tbody")[0];
+        // Alle Zeilen löschen oder vorhandene Zellen von .current-day befreien
+        const rows = weeklyTable.getElementsByTagName("tr");
+        for (let row of rows) {
+          const cells = row.getElementsByTagName("td");
+          for (let cell of cells) {
+            cell.classList.remove("current-day");
+          }
+        }
+      }
+
+      // Ermittelt die ISO-Kalenderwoche (1–53) einer gegebenen Date
+      function getWeekNumber(d) {
+        // Kopie des Datums, damit Original nicht verändert wird
+        const date = new Date(
+          Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())
+        );
+        // Donnerstag einer Woche finden
+        date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+        // Erster Tag des Jahres
+        const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+        // Kalenderwoche berechnen
+        const weekNo = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+        return [date.getUTCFullYear(), weekNo];
+      }
+
+      function generateYearView() {
+        const yearContainer = document.getElementById("yearContainer");
+        yearContainer.innerHTML = ""; // Clear previous content
+
+        for (let month = 0; month < 12; month++) {
+          const monthDiv = document.createElement("div");
+          monthDiv.className = "year-month";
+
+          const monthTitle = document.createElement("h2");
+          monthTitle.textContent = `${monthNames[month]} ${currentYear}`;
+          monthDiv.appendChild(monthTitle);
+
+          const monthTable = generateMonthTable(month, currentYear);
+          monthDiv.appendChild(monthTable);
+
+          yearContainer.appendChild(monthDiv);
+        }
+
+        highlightCurrentMonthInYearView(); // Optional
+      }
+
+      function generateMonthTable(month, year) {
+        const table = document.createElement("table");
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].forEach((day) => {
+          const th = document.createElement("th");
+          th.textContent = day;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        let date = 1;
+        let startDay = firstDay === 0 ? 6 : firstDay - 1;
+
+        for (let i = 0; i < 6; i++) {
+          const row = document.createElement("tr");
+          for (let j = 0; j < 7; j++) {
+            const cell = document.createElement("td");
+            if (i === 0 && j < startDay) {
+              cell.innerHTML = "";
+            } else if (date > daysInMonth) {
+              cell.innerHTML = "";
+            } else {
+              cell.textContent = date;
+              if (
+                currentMonth === month &&
+                currentYear === new Date().getFullYear() &&
+                date === new Date().getDate()
+              ) {
+                cell.classList.add("current-day");
+              }
+
+              // Add terms to the day cell
+              const cellDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+              terms.forEach(term => {
+                const termDate = term.dateFrom.split('T')[0];
+                if (termDate === cellDate) {
+                  const eventDiv = document.createElement("div");
+                  eventDiv.className = "calendar-event";
+                  eventDiv.textContent = `${new Date(term.dateFrom).getHours()}:${String(new Date(term.dateFrom).getMinutes()).padStart(2, '0')} ${term.title}`;
+                  eventDiv.style.backgroundColor = "#ff5722";
+                  eventDiv.style.color = "#fff";
+                  eventDiv.style.padding = "2px";
+                  eventDiv.style.marginTop = "2px";
+                  eventDiv.style.borderRadius = "2px";
+                  eventDiv.style.cursor = "pointer";
+                  eventDiv.onclick = function () {
+                    openTermInfoPopup(term.id);
+                  };
+                  cell.appendChild(eventDiv);
+                }
+              });
+
+              date++;
+            }
+            row.appendChild(cell);
+          }
+          tbody.appendChild(row);
+          if (date > daysInMonth) {
+            break;
+          }
+        }
+        table.appendChild(tbody);
+        return table;
+      }
+
+      // Optional: Highlight current month in year view
+      function highlightCurrentMonthInYearView() {
+        const yearContainer = document.getElementById("yearContainer");
+        const monthDivs = yearContainer.getElementsByClassName("year-month");
+        for (let div of monthDivs) {
+          const title = div.getElementsByTagName("h2")[0];
+          if (title.textContent.startsWith(monthNames[new Date().getMonth()])) {
+            title.style.backgroundColor = "#ffeb3b";
+          } else {
+            title.style.backgroundColor = "";
+          }
+        }
+      }
+
+      // Funktion zum Öffnen des Bearbeitungs-Popups (hinzufügen, entfernen und bearbeiten von Benutzern)
+      function openAddUserPopup() {
+        const addPopup = document.createElement("div");
+        addPopup.id = "addUserPopup";
+        addPopup.style.position = "fixed";
+        addPopup.style.top = "0";
+        addPopup.style.left = "0";
+        addPopup.style.width = "100%";
+        addPopup.style.height = "100%";
+        addPopup.style.background = "rgba(0,0,0,0.5)";
+        addPopup.style.display = "flex";
+        addPopup.style.justifyContent = "center";
+        addPopup.style.alignItems = "center";
+        addPopup.style.zIndex = "1000";
+
+        const popupContent = document.createElement("div");
+        popupContent.id = "popupContent";
+        popupContent.style.background = "#fff";
+        popupContent.style.padding = "20px";
+        popupContent.style.borderRadius = "5px";
+        popupContent.style.textAlign = "center";
+        popupContent.style.width = "500px"; // Erweiterte Breite für Benutzerliste und Bearbeitung
+
+        // Titel für Benutzerverwaltung
+        const title = document.createElement("h2");
+        title.textContent = "Benutzer verwalten";
+        popupContent.appendChild(title);
+
+        // Abschnitt zum Hinzufügen eines neuen Benutzers
+        const addUserSection = document.createElement("div");
+        addUserSection.style.marginBottom = "20px";
+
+        const addTitle = document.createElement("h3");
+        addTitle.textContent = "Neuen Benutzer hinzufügen";
+        addUserSection.appendChild(addTitle);
+
+        const usernameInput = document.createElement("input");
+        usernameInput.type = "text";
+        usernameInput.id = "newUsername";
+        usernameInput.placeholder = "Benutzername";
+        usernameInput.style.width = "80%";
+        usernameInput.style.margin = "5px 0";
+        addUserSection.appendChild(usernameInput);
+
+        const roleSelect = document.createElement("select");
+        roleSelect.id = "newUserRole";
+        roleSelect.style.width = "85%";
+        roleSelect.style.margin = "5px 0";
+        const roles = ["user", "admin"];
+        roles.forEach((role) => {
+          const option = document.createElement("option");
+          option.value = role;
+          option.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+          roleSelect.appendChild(option);
+        });
+        addUserSection.appendChild(roleSelect);
+
+        const addButton = document.createElement("button");
+        addButton.textContent = "Hinzufügen";
+        addButton.style.margin = "10px 5px";
+        addButton.onclick = addUser;
+        addUserSection.appendChild(addButton);
+
+        addUserSection.appendChild(document.createElement("hr")); // Trennlinie
+
+        // Abschnitt zum Entfernen und Bearbeiten von Benutzern
+        const manageUserSection = document.createElement("div");
+        manageUserSection.style.marginTop = "20px";
+
+        const manageTitle = document.createElement("h3");
+        manageTitle.textContent = "Benutzer bearbeiten";
+        manageUserSection.appendChild(manageTitle);
+
+        const userList = document.createElement("ul");
+        userList.style.listStyleType = "none";
+        userList.style.padding = "0";
+
+        users.forEach((user) => {
+          // Verhindern, dass der Benutzer "Admin" entfernt oder bearbeitet wird
+          if (user.username === "Admin") return;
+
+          const userItem = document.createElement("li");
+          userItem.style.margin = "5px 0";
+          userItem.style.display = "flex";
+          userItem.style.justifyContent = "space-between";
+          userItem.style.alignItems = "center";
+
+          const usernameSpan = document.createElement("span");
+          usernameSpan.textContent = user.username + ` (${user.role})`;
+          userItem.appendChild(usernameSpan);
+
+          const buttonContainer = document.createElement("div");
+
+          // Entfernen-Button
+          const removeButton = document.createElement("button");
+          removeButton.textContent = "Entfernen";
+          removeButton.style.backgroundColor = "#f44336";
+          removeButton.style.color = "#fff";
+          removeButton.style.border = "none";
+          removeButton.style.padding = "5px 10px";
+          removeButton.style.cursor = "pointer";
+          removeButton.style.borderRadius = "3px";
+          removeButton.style.marginRight = "5px";
+          removeButton.onclick = function () {
+            removeUser(user.id);
+          };
+          buttonContainer.appendChild(removeButton);
+
+          // Bearbeiten-Button
+          const editButton = document.createElement("button");
+          editButton.textContent = "Bearbeiten";
+          editButton.style.backgroundColor = "#2196F3";
+          editButton.style.color = "#fff";
+          editButton.style.border = "none";
+          editButton.style.padding = "5px 10px";
+          editButton.style.cursor = "pointer";
+          editButton.style.borderRadius = "3px";
+          editButton.onclick = function () {
+            editUser(user.id);
+          };
+          buttonContainer.appendChild(editButton);
+
+          userItem.appendChild(buttonContainer);
+          userList.appendChild(userItem);
+        });
+
+        manageUserSection.appendChild(userList);
+        popupContent.appendChild(addUserSection);
+        popupContent.appendChild(manageUserSection);
+
+        // Abbrechen-Button
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Abbrechen";
+        cancelButton.style.marginTop = "20px";
+        cancelButton.onclick = function () {
+          document.getElementById("addUserPopup").remove();
+        };
+        popupContent.appendChild(cancelButton);
+
+        addPopup.appendChild(popupContent);
+        document.body.appendChild(addPopup);
+      }
+
+      // Funktion zum Entfernen eines Benutzers
+      function removeUser(userId) {
+        const user = users.find((u) => u.id === userId);
+        if (!user) {
+          alert("Benutzer nicht gefunden!");
+          return;
+        }
+
+        // Bestätigung vor dem Entfernen
+        const confirmRemoval = confirm(
+          `Möchten Sie den Benutzer "${user.username}" wirklich entfernen?`
+        );
+        if (!confirmRemoval) return;
+
+        // Entfernen des Benutzers aus dem Array
+        users = users.filter((u) => u.id !== userId);
+        saveUsers();
+
+        // Popup schließen und Benutzerbuttons aktualisieren
+        document.getElementById("addUserPopup").remove();
+        displayUserButtons();
+        alert("Benutzer erfolgreich entfernt!");
+      }
+
+      // Funktion zum Bearbeiten eines Benutzers
+      function editUser(userId) {
+        const user = users.find((u) => u.id === userId);
+        if (!user) {
+          alert("Benutzer nicht gefunden!");
+          return;
+        }
+
+        // Öffnen des Bearbeitungs-Popups
+        const editPopup = document.createElement("div");
+        editPopup.id = "editUserPopup";
+        editPopup.style.position = "fixed";
+        editPopup.style.top = "0";
+        editPopup.style.left = "0";
+        editPopup.style.width = "100%";
+        editPopup.style.height = "100%";
+        editPopup.style.background = "rgba(0,0,0,0.5)";
+        editPopup.style.display = "flex";
+        editPopup.style.justifyContent = "center";
+        editPopup.style.alignItems = "center";
+        editPopup.style.zIndex = "1000";
+
+        const popupContent = document.createElement("div");
+        popupContent.id = "popupContent";
+        popupContent.style.background = "#fff";
+        popupContent.style.padding = "20px";
+        popupContent.style.borderRadius = "5px";
+        popupContent.style.textAlign = "center";
+        popupContent.style.width = "400px";
+
+        const title = document.createElement("h2");
+        title.textContent = `Benutzer bearbeiten: ${user.username}`;
+        popupContent.appendChild(title);
+
+        // Eingabefeld für den neuen Benutzernamen
+        const usernameInput = document.createElement("input");
+        usernameInput.type = "text";
+        usernameInput.id = "editUsername";
+        usernameInput.placeholder = "Neuer Benutzername";
+        usernameInput.style.width = "80%";
+        usernameInput.style.margin = "5px 0";
+        usernameInput.value = user.username;
+        popupContent.appendChild(usernameInput);
+
+        // Button zum Speichern der Änderungen
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Speichern";
+        saveButton.style.margin = "10px 5px";
+        saveButton.onclick = function () {
+          updateUser(userId);
+        };
+        popupContent.appendChild(saveButton);
+
+        // Button zum Zurücksetzen des Passworts
+        const resetPasswordButton = document.createElement("button");
+        resetPasswordButton.textContent = "Passwort zurücksetzen";
+        resetPasswordButton.style.margin = "10px 5px";
+        resetPasswordButton.onclick = function () {
+          resetPassword(userId);
+        };
+        popupContent.appendChild(resetPasswordButton);
+
+        // Abbrechen-Button
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Abbrechen";
+        cancelButton.style.margin = "10px 5px";
+        cancelButton.onclick = function () {
+          document.getElementById("editUserPopup").remove();
+        };
+        popupContent.appendChild(cancelButton);
+
+        editPopup.appendChild(popupContent);
+        document.body.appendChild(editPopup);
+      }
+
+      // Funktion zum Aktualisieren eines Benutzers
+      function updateUser(userId) {
+        const newUsername = document
+          .getElementById("editUsername")
+          .value.trim();
+        if (!newUsername) {
+          alert("Benutzername darf nicht leer sein!");
+          return;
+        }
+
+        // Überprüfen, ob der neue Benutzername bereits existiert
+        if (users.some((u) => u.username === newUsername && u.id !== userId)) {
+          alert("Benutzername existiert bereits!");
+          return;
+        }
+
+        const user = users.find((u) => u.id === userId);
+        if (user) {
+          user.username = newUsername;
+          saveUsers();
+          document.getElementById("editUserPopup").remove();
+          displayUserButtons();
+          alert("Benutzer erfolgreich aktualisiert!");
+        } else {
+          alert("Benutzer nicht gefunden!");
+        }
+      }
+
+      // Funktion zum Zurücksetzen des Passworts auf das Standardpasswort
+      function resetPassword(userId) {
+        const user = users.find((u) => u.id === userId);
+        if (!user) {
+          alert("Benutzer nicht gefunden!");
+          return;
+        }
+
+        const confirmReset = confirm(
+          `Möchten Sie das Passwort für "${user.username}" auf das Standardpasswort zurücksetzen?`
+        );
+        if (!confirmReset) return;
+
+        user.password = "user1234"; // Standardpasswort
+        user.firstLogin = true;
+        saveUsers();
+        document.getElementById("editUserPopup").remove();
+        alert("Passwort erfolgreich zurückgesetzt!");
+      }
+
+      // Array zur Speicherung der Termine
+      let terms = JSON.parse(localStorage.getItem("terms")) || [];
+
+      // Speichern der Termine in localStorage
+      function saveTerms() {
+        localStorage.setItem("terms", JSON.stringify(terms));
+      }
+
+      // Funktion zum Öffnen des Buchungs-Popups
+      function openBookTermPopup() {
+        const bookPopup = document.createElement("div");
+        bookPopup.id = "bookTermPopup";
+        bookPopup.style.position = "fixed";
+        bookPopup.style.top = "0";
+        bookPopup.style.left = "0";
+        bookPopup.style.width = "100%";
+        bookPopup.style.height = "100%";
+        bookPopup.style.background = "rgba(0,0,0,0.5)";
+        bookPopup.style.display = "flex";
+        bookPopup.style.justifyContent = "center";
+        bookPopup.style.alignItems = "center";
+        bookPopup.style.zIndex = "1000";
+
+        const popupContent = document.createElement("div");
+        popupContent.id = "popupContent";
+        popupContent.style.background = "#fff";
+        popupContent.style.padding = "20px";
+        popupContent.style.borderRadius = "5px";
+        popupContent.style.textAlign = "center";
+        popupContent.style.width = "400px";
+
+        const title = document.createElement("h2");
+        title.textContent = "Termin buchen";
+        popupContent.appendChild(title);
+
+        // Titel Eingabe
+        const termTitle = document.createElement("input");
+        termTitle.type = "text";
+        termTitle.id = "termTitle";
+        termTitle.placeholder = "Titel";
+        termTitle.style.width = "80%";
+        termTitle.style.margin = "5px 0";
+        popupContent.appendChild(termTitle);
+
+        // Ort Eingabe
+        const termLocation = document.createElement("input");
+        termLocation.type = "text";
+        termLocation.id = "termLocation";
+        termLocation.placeholder = "Ort";
+        termLocation.style.width = "80%";
+        termLocation.style.margin = "5px 0";
+        popupContent.appendChild(termLocation);
+
+        // Datum und Uhrzeit von
+        const dateFrom = document.createElement("input");
+        dateFrom.type = "date";
+        dateFrom.id = "termDateFrom";
+        dateFrom.style.width = "80%";
+        dateFrom.style.margin = "5px 0";
+        popupContent.appendChild(dateFrom);
+
+        const timeFrom = document.createElement("input");
+        timeFrom.type = "time";
+        timeFrom.id = "termTimeFrom";
+        timeFrom.style.width = "80%";
+        timeFrom.style.margin = "5px 0";
+        popupContent.appendChild(timeFrom);
+
+        // Datum und Uhrzeit bis
+        const dateTo = document.createElement("input");
+        dateTo.type = "date";
+        dateTo.id = "termDateTo";
+        dateTo.style.width = "80%";
+        dateTo.style.margin = "5px 0";
+        popupContent.appendChild(dateTo);
+
+        const timeTo = document.createElement("input");
+        timeTo.type = "time";
+        timeTo.id = "termTimeTo";
+        timeTo.style.width = "80%";
+        timeTo.style.margin = "5px 0";
+        popupContent.appendChild(timeTo);
+
+        // Weitere Informationen
+        const additionalInfo = document.createElement("textarea");
+        additionalInfo.id = "termInfo";
+        additionalInfo.placeholder = "Weitere Informationen";
+        additionalInfo.style.width = "80%";
+        additionalInfo.style.margin = "5px 0";
+        popupContent.appendChild(additionalInfo);
+
+        // Speichern Button
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Speichern";
+        saveButton.style.margin = "10px 5px";
+        saveButton.onclick = saveTerm;
+        popupContent.appendChild(saveButton);
+
+        // Abbrechen Button
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Abbrechen";
+        cancelButton.style.margin = "10px 5px";
+        cancelButton.onclick = function () {
+          document.getElementById("bookTermPopup").remove();
+        };
+        popupContent.appendChild(cancelButton);
+
+        bookPopup.appendChild(popupContent);
+        document.body.appendChild(bookPopup);
+      }
+
+      // Funktion zum Speichern des Termins
+      function saveTerm() {
+        const title = document.getElementById("termTitle").value.trim();
+        const location = document.getElementById("termLocation").value.trim();
+        const dateFrom = document.getElementById("termDateFrom").value;
+        const timeFrom = document.getElementById("termTimeFrom").value;
+        const dateTo = document.getElementById("termDateTo").value;
+        const timeTo = document.getElementById("termTimeTo").value;
+        const info = document.getElementById("termInfo").value.trim();
+
+        if (!title || !dateFrom || !timeFrom || !dateTo || !timeTo) {
+          alert("Bitte füllen Sie alle erforderlichen Felder aus.");
+          return;
+        }
+
+        const term = {
+          id: generateTermId(),
+          title,
+          location,
+          dateFrom: `${dateFrom}T${timeFrom}`,
+          dateTo: `${dateTo}T${timeTo}`,
+          info,
+        };
+
+        terms.push(term);
+        saveTerms();
+        document.getElementById("bookTermPopup").remove();
+        renderCalendarEvents();
+        renderDailyView();
+        alert("Termin erfolgreich gebucht!");
+      }
+
+      // Funktion zur Generierung eindeutiger Term-IDs
+      function generateTermId() {
+        return Date.now().toString();
+      }
+
+      // Funktion zum Rendern der Termine im Kalender
+      function renderCalendarEvents() {
+        const calendarTable = document.getElementById("calendarTable").getElementsByTagName("tbody")[0];
+        const today = new Date();
+
+        // Entferne vorhandene Event-Titel
+        const eventElements = document.querySelectorAll(".calendar-event");
+        eventElements.forEach(el => el.remove());
+
+        terms.forEach(term => {
+          const termDate = new Date(term.dateFrom);
+          if (termDate.getMonth() === currentMonth && termDate.getFullYear() === currentYear) {
+            const day = termDate.getDate();
+            const rows = calendarTable.getElementsByTagName("tr");
+            for (let row of rows) {
+              const cells = row.getElementsByTagName("td");
+              for (let cell of cells) {
+                if (parseInt(cell.textContent) === day) {
+                  const eventDiv = document.createElement("div");
+                  eventDiv.className = "calendar-event";
+                  eventDiv.textContent = `${termDate.getHours()}:${termDate.getMinutes().toString().padStart(2, '0')} ${term.title}`;
+                  eventDiv.style.backgroundColor = "#ff5722";
+                  eventDiv.style.color = "#fff";
+                  eventDiv.style.padding = "2px";
+                  eventDiv.style.marginTop = "2px";
+                  eventDiv.style.borderRadius = "2px";
+                  eventDiv.style.cursor = "pointer";
+                  eventDiv.onclick = function () {
+                    openTermInfoPopup(term.id);
+                  };
+                  cell.appendChild(eventDiv);
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Funktion zum Öffnen des Term-Info-Popups
+      function openTermInfoPopup(termId) {
+        const term = terms.find(t => t.id === termId);
+        if (!term) {
+          alert("Termin nicht gefunden!");
+          return;
+        }
+
+        const infoPopup = document.createElement("div");
+        infoPopup.id = "termInfoPopup";
+        infoPopup.style.position = "fixed";
+        infoPopup.style.top = "0";
+        infoPopup.style.left = "0";
+        infoPopup.style.width = "100%";
+        infoPopup.style.height = "100%";
+        infoPopup.style.background = "rgba(0,0,0,0.5)";
+        infoPopup.style.display = "flex";
+        infoPopup.style.justifyContent = "center";
+        infoPopup.style.alignItems = "center";
+        infoPopup.style.zIndex = "1000";
+
+        const popupContent = document.createElement("div");
+        popupContent.id = "popupContent";
+        popupContent.style.background = "#fff";
+        popupContent.style.padding = "20px";
+        popupContent.style.borderRadius = "5px";
+        popupContent.style.textAlign = "center";
+        popupContent.style.width = "400px";
+
+        const title = document.createElement("h2");
+        title.textContent = "Termin Informationen";
+        popupContent.appendChild(title);
+
+        // Anzeige der Termindetails
+        popupContent.innerHTML += `<p><strong>Titel:</strong> ${term.title}</p>`;
+        popupContent.innerHTML += `<p><strong>Ort:</strong> ${term.location}</p>`;
+        popupContent.innerHTML += `<p><strong>Von:</strong> ${formatDateTime(term.dateFrom)}</p>`;
+        popupContent.innerHTML += `<p><strong>Bis:</strong> ${formatDateTime(term.dateTo)}</p>`;
+        popupContent.innerHTML += `<p><strong>Weitere Informationen:</strong> ${term.info}</p>`;
+
+        // Bearbeiten Button
+        const editButton = document.createElement("button");
+        editButton.textContent = "Bearbeiten";
+        editButton.style.margin = "10px 5px";
+        editButton.onclick = function () {
+          openEditTermPopup(term.id);
+        };
+        popupContent.appendChild(editButton);
+
+        // Löschen Button
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Löschen";
+        deleteButton.style.margin = "10px 5px";
+        deleteButton.onclick = function () {
+          deleteTerm(term.id);
+        };
+        popupContent.appendChild(deleteButton);
+
+        // Abbrechen Button
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Abbrechen";
+        cancelButton.style.margin = "10px 5px";
+        cancelButton.onclick = function () {
+          document.getElementById("termInfoPopup").remove();
+        };
+        popupContent.appendChild(cancelButton);
+
+        infoPopup.appendChild(popupContent);
+        document.body.appendChild(infoPopup);
+      }
+
+      // Funktion zum Formatieren von Datum und Uhrzeit
+      function formatDateTime(dateTimeStr) {
+        const date = new Date(dateTimeStr);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${day}.${month}.${year} ${hours}:${minutes}`;
+      }
+
+      // Funktion zum Öffnen des Bearbeitungs-Popups
+      function openEditTermPopup(termId) {
+        const term = terms.find(t => t.id === termId);
+        if (!term) {
+          alert("Termin nicht gefunden!");
+          return;
+        }
+
+        const editPopup = document.createElement("div");
+        editPopup.id = "editTermPopup";
+        editPopup.style.position = "fixed";
+        editPopup.style.top = "0";
+        editPopup.style.left = "0";
+        editPopup.style.width = "100%";
+        editPopup.style.height = "100%";
+        editPopup.style.background = "rgba(0,0,0,0.5)";
+        editPopup.style.display = "flex";
+        editPopup.style.justifyContent = "center";
+        editPopup.style.alignItems = "center";
+        editPopup.style.zIndex = "1000";
+
+        const popupContent = document.createElement("div");
+        popupContent.id = "popupContent";
+        popupContent.style.background = "#fff";
+        popupContent.style.padding = "20px";
+        popupContent.style.borderRadius = "5px";
+        popupContent.style.textAlign = "center";
+        popupContent.style.width = "400px";
+
+        const title = document.createElement("h2");
+        title.textContent = "Termin bearbeiten";
+        popupContent.appendChild(title);
+
+        // Titel Eingabe
+        const termTitle = document.createElement("input");
+        termTitle.type = "text";
+        termTitle.id = "editTermTitle";
+        termTitle.placeholder = "Titel";
+        termTitle.style.width = "80%";
+        termTitle.style.margin = "5px 0";
+        termTitle.value = term.title;
+        popupContent.appendChild(termTitle);
+
+        // Ort Eingabe
+        const termLocation = document.createElement("input");
+        termLocation.type = "text";
+        termLocation.id = "editTermLocation";
+        termLocation.placeholder = "Ort";
+        termLocation.style.width = "80%";
+        termLocation.style.margin = "5px 0";
+        termLocation.value = term.location;
+        popupContent.appendChild(termLocation);
+
+        // Datum und Uhrzeit von
+        const dateFrom = document.createElement("input");
+        dateFrom.type = "date";
+        dateFrom.id = "editTermDateFrom";
+        dateFrom.style.width = "80%";
+        dateFrom.style.margin = "5px 0";
+        dateFrom.value = term.dateFrom.split("T")[0];
+        popupContent.appendChild(dateFrom);
+
+        const timeFrom = document.createElement("input");
+        timeFrom.type = "time";
+        timeFrom.id = "editTermTimeFrom";
+        timeFrom.style.width = "80%";
+        timeFrom.style.margin = "5px 0";
+        timeFrom.value = term.dateFrom.split("T")[1];
+        popupContent.appendChild(timeFrom);
+
+        // Datum und Uhrzeit bis
+        const dateTo = document.createElement("input");
+        dateTo.type = "date";
+        dateTo.id = "editTermDateTo";
+        dateTo.style.width = "80%";
+        dateTo.style.margin = "5px 0";
+        dateTo.value = term.dateTo.split("T")[0];
+        popupContent.appendChild(dateTo);
+
+        const timeTo = document.createElement("input");
+        timeTo.type = "time";
+        timeTo.id = "editTermTimeTo";
+        timeTo.style.width = "80%";
+        timeTo.style.margin = "5px 0";
+        timeTo.value = term.dateTo.split("T")[1];
+        popupContent.appendChild(timeTo);
+
+        // Weitere Informationen
+        const additionalInfo = document.createElement("textarea");
+        additionalInfo.id = "editTermInfo";
+        additionalInfo.placeholder = "Weitere Informationen";
+        additionalInfo.style.width = "80%";
+        additionalInfo.style.margin = "5px 0";
+        additionalInfo.value = term.info;
+        popupContent.appendChild(additionalInfo);
+
+        // Speichern Button
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Speichern";
+        saveButton.style.margin = "10px 5px";
+        saveButton.onclick = function () {
+          updateTerm(term.id);
+        };
+        popupContent.appendChild(saveButton);
+
+        // Abbrechen Button
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Abbrechen";
+        cancelButton.style.margin = "10px 5px";
+        cancelButton.onclick = function () {
+          document.getElementById("editTermPopup").remove();
+        };
+        popupContent.appendChild(cancelButton);
+
+        editPopup.appendChild(popupContent);
+        document.body.appendChild(editPopup);
+      }
+
+      // Funktion zum Aktualisieren des Termins
+      function updateTerm(termId) {
+        const title = document.getElementById("editTermTitle").value.trim();
+        const location = document.getElementById("editTermLocation").value.trim();
+        const dateFrom = document.getElementById("editTermDateFrom").value;
+        const timeFrom = document.getElementById("editTermTimeFrom").value;
+        const dateTo = document.getElementById("editTermDateTo").value;
+        const timeTo = document.getElementById("editTermTimeTo").value;
+        const info = document.getElementById("editTermInfo").value.trim();
+
+        if (!title || !dateFrom || !timeFrom || !dateTo || !timeTo) {
+          alert("Bitte füllen Sie alle erforderlichen Felder aus.");
+          return;
+        }
+
+        const termIndex = terms.findIndex(t => t.id === termId);
+        if (termIndex === -1) {
+          alert("Termin nicht gefunden!");
+          return;
+        }
+
+        terms[termIndex] = {
+          id: termId,
+          title,
+          location,
+          dateFrom: `${dateFrom}T${timeFrom}`,
+          dateTo: `${dateTo}T${timeTo}`,
+          info,
+        };
+
+        saveTerms();
+        document.getElementById("editTermPopup").remove();
+        renderCalendarEvents();
+        renderDailyView();
+        alert("Termin erfolgreich aktualisiert!");
+      }
+
+      // Funktion zum Löschen des Termins
+      function deleteTerm(termId) {
+        if (!confirm("Möchten Sie diesen Termin wirklich löschen?")) return;
+        terms = terms.filter(t => t.id !== termId);
+        saveTerms();
+        document.getElementById("termInfoPopup").remove();
+        renderCalendarEvents();
+        renderDailyView();
+        alert("Termin erfolgreich gelöscht!");
+      }
+
+      // Funktion zum Rendern der täglichen Ansicht mit Terminen
+      function renderDailyView() {
+        const dailyTable = document.getElementById("dailyTable").getElementsByTagName("tbody")[0];
+        dailyTable.innerHTML = "";
+        const selectedDate = document.getElementById("dailyDate").value;
+
+        for (let hour = 0; hour < 24; hour++) {
+          const time = `${hour.toString().padStart(2, '0')}:00`;
+          const row = document.createElement("tr");
+          
+          const timeCell = document.createElement("td");
+          timeCell.textContent = time;
+          row.appendChild(timeCell);
+          
+          const eventCell = document.createElement("td");
+          eventCell.style.position = "relative";
+          
+          terms.forEach(term => {
+            const termStart = new Date(term.dateFrom);
+            const termEnd = new Date(term.dateTo);
+            
+            if (termStart.toISOString().split('T')[0] === selectedDate) {
+              const startHour = termStart.getHours();
+              const endHour = termEnd.getHours() + (termEnd.getMinutes() > 0 ? 1 : 0);
+              
+              if (hour >= startHour && hour < endHour) {
+                const eventDiv = document.createElement("div");
+                eventDiv.className = "daily-event";
+                eventDiv.textContent = `${formatDateTime(term.dateFrom)} - ${formatDateTime(term.dateTo)}: ${term.title}`;
+                eventDiv.style.backgroundColor = "#ff5722";
+                eventDiv.style.color = "#fff";
+                eventDiv.style.padding = "2px 5px";
+                eventDiv.style.marginTop = "2px";
+                eventDiv.style.borderRadius = "2px";
+                eventDiv.style.cursor = "pointer";
+                eventDiv.style.position = "absolute";
+                eventDiv.style.top = "0";
+                eventDiv.style.left = "0";
+                eventDiv.style.right = "0";
+                eventDiv.onclick = function () {
+                  openTermInfoPopup(term.id);
+                };
+                eventCell.appendChild(eventDiv);
+              }
+            }
+          });
+
+          row.appendChild(eventCell);
+          dailyTable.appendChild(row);
+        }
+      }
+
+      // Funktion zum Rendern der wöchentlichen Ansicht ohne Stundeneinteilung
+      function renderWeeklyView() {
+        const weeklyTable = document.getElementById("weeklyTable").getElementsByTagName("tbody")[0];
+        const weeklyDateInput = document.getElementById("weeklyDate").value;
+        if (!weeklyDateInput) return;
+      
+        const [selectedYear, selectedWeek] = weeklyDateInput.split("-W").map(Number);
+        const firstDayOfWeek = getDateOfISOWeek(selectedYear, selectedWeek);
+      
+        // Clear existing events
+        for (let day = 0; day < 7; day++) {
+          const currentDate = new Date(firstDayOfWeek);
+          currentDate.setDate(currentDate.getDate() + day);
+          // Use local date components for comparison
+          const formattedDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+
+          // Corrected dayCell selection using day index
+          const daysMap = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+          const dayIndex = currentDate.getDay();
+          const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1; // Adjust so Monday=0, Sunday=6
+          const dayAbbr = daysMap[adjustedIndex];
+          const dayCell = document.getElementById(`week-${dayAbbr}`);
+
+          dayCell.innerHTML = ""; // Clear previous events
+
+          terms.forEach(term => {
+            const termStart = new Date(term.dateFrom);
+            const termEnd = new Date(term.dateTo);
+            
+            const termDate = `${termStart.getFullYear()}-${String(termStart.getMonth() + 1).padStart(2, '0')}-${String(termStart.getDate()).padStart(2, '0')}`;
+            
+            if (termDate === formattedDate) {
+              const eventDiv = document.createElement("div");
+              eventDiv.className = "weekly-event";
+              
+              // Simplified event display to show only time and title
+              const timeFrom = termStart.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+              const timeTo = termEnd.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+              eventDiv.textContent = `${timeFrom} - ${timeTo}: ${term.title}`;
+              
+              eventDiv.style.backgroundColor = "#ff5722";
+              eventDiv.style.color = "#fff";
+              eventDiv.style.padding = "2px 5px";
+              eventDiv.style.marginTop = "2px";
+              eventDiv.style.borderRadius = "2px";
+              eventDiv.style.cursor = "pointer";
+              eventDiv.style.position = "relative";
+              eventDiv.onclick = function () {
+                openTermInfoPopup(term.id);
+              };
+              dayCell.appendChild(eventDiv);
+            }
+          });
+        }
+      }
+      
+
+      // Aktualisiere die Kalenderansicht nach dem Laden
+      function updateMonth() {
+        document.getElementById("monthName").textContent =
+          monthNames[currentMonth] + " " + currentYear;
+        generateCalendar(currentMonth, currentYear);
+        renderCalendarEvents(); // Termine anzeigen
+        if (currentView === "week") {
+          renderWeeklyView();
+        }
+      }
+
+      // Event Listener zum Aktualisieren der täglichen Ansicht
+      document.getElementById("dailyDate").addEventListener("change", renderDailyView);
+
+      // Event Listener zum Aktualisieren der Wochenansicht
+      document.getElementById("weeklyDate").addEventListener("change", updateWeeklyView);
+
+      // Initial Render
+      renderCalendarEvents();
+      renderDailyView();
+      renderWeeklyView();
     </script>
-</body>
+  </body>
 </html>
