@@ -1,4 +1,5 @@
 import { eventsList } from "../data/events";
+import { navigateTo } from "../../features/router";
 
 class EventService {
   private events: Event[];
@@ -34,6 +35,10 @@ class EventService {
     }
     return false;
   }
+
+  getEventById(eventId: string): Event | undefined {
+    return this.events.find((event) => event.id === eventId);
+  }
 }
 
 export class EventRenderer {
@@ -60,6 +65,7 @@ export class EventRenderer {
         .join("");
       this.attachBookingListeners(); // Attach functionality to the Booking buttons
       this.attachFavoriteListeners(); // Attach functionality to the Favorite buttons
+      this.attachDetailListeners(); // Attach functionality to the Detail buttons
     } else {
       console.error("eventsContainer element not found");
     }
@@ -95,9 +101,9 @@ export class EventRenderer {
               <button class="favorite-button ${event.isFavorite ? "text-red-500" : "text-gray-500"} hover:text-red-600" data-id="${event.id}">
                 <i class="fas fa-heart"></i>
               </button>
-              <a href="event-details.html?id=${event.id}" class="text-blue-500 hover:text-blue-600">
+              <button class="detail-button text-blue-500 hover:text-blue-600" data-id="${event.id}">
                 <i class="fas fa-info-circle"></i>
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -184,6 +190,78 @@ export class EventRenderer {
         this.initializeEvents(); // Re-render events to update favorites
       });
     });
+  }
+
+  private attachDetailListeners() {
+    const detailButtons = document.querySelectorAll(".detail-button");
+
+    detailButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const eventId = button.getAttribute("data-id");
+        navigateTo(`/services/${eventId}`);
+      });
+    });
+  }
+
+  public renderEventDetails(eventId: string) {
+    const event = this.eventService.getEventById(eventId);
+    if (event) {
+      const appElement = document.getElementById("app");
+      if (appElement) {
+        appElement.innerHTML = `
+          <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition hover:scale-105">
+            <div class="p-6">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-blue-600">${event.title}</h2>
+                <i class="${event.icon} text-3xl text-blue-500"></i>
+              </div>
+              <p class="text-gray-600 mb-4">${event.description}</p>
+              <div class="grid grid-cols-2 gap-2 mb-4">
+                <div>
+                  <p class="font-semibold">Price: ${event.price} €</p>
+                  <p class="text-sm text-gray-500">Duration: ${event.duration}</p>
+                </div>
+                <div>
+                  <p class="font-semibold">Capacity: ${event.capacity}</p>
+                  <p class="text-sm text-gray-500">Category: ${event.category}</p>
+                </div>
+              </div>
+              <div class="flex justify-between items-center">
+                <button class="booking-button bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition" 
+                  data-id="${event.id}" ${event.capacity === 0 ? "disabled" : ""}>
+                  ${event.capacity === 0 ? "Sold Out" : "Booking"}
+                </button>
+                <div class="flex space-x-2">
+                  <button class="favorite-button ${event.isFavorite ? "text-red-500" : "text-gray-500"} hover:text-red-600" data-id="${event.id}">
+                    <i class="fas fa-heart"></i>
+                  </button>
+                  <button class="back-button text-blue-500 hover:text-blue-600">
+                    <i class="fas fa-arrow-left"></i> Back
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        this.attachBookingListeners(); // Attach functionality to the Booking buttons
+        this.attachFavoriteListeners(); // Attach functionality to the Favorite buttons
+        this.attachBackListener(); // Attach functionality to the Back button
+      } else {
+        console.error("App element not found");
+      }
+    } else {
+      console.error("Event not found");
+    }
+  }
+
+  private attachBackListener() {
+    const backButton = document.querySelector(".back-button");
+
+    if (backButton) {
+      backButton.addEventListener("click", () => {
+        navigateTo("/services");
+      });
+    }
   }
 }
 
