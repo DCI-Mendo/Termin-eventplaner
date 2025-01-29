@@ -1,10 +1,11 @@
 import homePage from "../src/pages/home";
 import contactPage from "../src/pages/contact";
-import notFoundPage from "../pages/notFound";
+import notFoundPage from "../src/pages/notFound";
 import aboutPage from "../src/pages/about";
-import EventsPage from "../src/data/events";
+import EventsPage from "../src/data/events"; // Corrected path
 import servicesPage from "../src/pages/eventBooking";
 import calendarPage from "../src/pages/calendar";
+
 const routes = [
   {
     path: "/",
@@ -15,7 +16,7 @@ const routes = [
     page: calendarPage,
   },
   {
-    path: "/eventsBooking/",
+    path: "/eventsBooking",
     page: servicesPage,
   },
   {
