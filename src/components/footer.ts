@@ -106,9 +106,3 @@ export class FooterManager {
     }
 }
 
-
-/*Detecta el envío del formulario (initializeEventListeners).
-Valida el email (validateEmail).
-Registra la suscripción (subscribeToNewsletter y logSubscription).
-Simula el envío a un backend (sendSubscriberToBackend).
-Muestra mensajes de éxito o error (showSuccessMessage y showErrorMessage).*/
