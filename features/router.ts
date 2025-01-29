@@ -1,4 +1,7 @@
 import { routes } from "./routes";
+import { initContactPage } from "../src/pages/contact";
+import { openPopup, closePopup } from "../src/components/popup";
+import { EventRenderer } from "../src/pages/eventBooking";
 
 export function navigateTo(url: string) {
   history.pushState(null, "", url);
@@ -6,7 +9,7 @@ export function navigateTo(url: string) {
 }
 
 function loadContent(url: string) {
-  const path = routes[url] || "404.html";
+  const path = routes[url.split("/")[1]] || "404.html"; // Handle dynamic routes
   fetch(`/src/pages/${path}`)
     .then((response) => {
       if (!response.ok) {
@@ -31,10 +34,10 @@ function loadContent(url: string) {
 export function initializePageLogic() {
   const currentPage = window.location.pathname;
 
-  if (currentPage === "/contact") {
+  if (currentPage.startsWith("/contact")) {
     // Initialize contact form logic
     initContactPage();
-  } else if (currentPage === "/calendar") {
+  } else if (currentPage.startsWith("/calendar")) {
     // Initialize calendar logic
     document
       .getElementById("addEventButton")
@@ -42,10 +45,15 @@ export function initializePageLogic() {
     document
       .getElementById("cancelButton")
       ?.addEventListener("click", closePopup);
-  } else if (currentPage === "/services") {
+  } else if (currentPage.startsWith("/services")) {
     // Initialize events booking logic
     const eventRenderer = new EventRenderer();
     eventRenderer.initializeEvents();
+  } else if (currentPage.startsWith("/services/")) {
+    // Initialize event details logic
+    const eventId = currentPage.split("/")[2];
+    const eventRenderer = new EventRenderer();
+    eventRenderer.renderEventDetails(eventId);
   }
   // Add more conditions for other pages as needed
 }
