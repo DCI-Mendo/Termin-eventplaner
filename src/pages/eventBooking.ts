@@ -52,15 +52,20 @@ class EventService {
 
 export class EventRenderer {
   private eventService: EventService;
-  private eventsContainer: HTMLElement;
-  private filterContainer: HTMLElement;
+  private eventsContainer: HTMLElement | null;
+  private filterContainer: HTMLElement | null;
 
   constructor() {
     this.eventService = new EventService();
-    this.eventsContainer = document.getElementById("eventsContainer")!;
-    this.filterContainer = document.getElementById("filterButtons")!;
-    this.initializeEvents();
-    this.createCategoryFilters();
+    this.eventsContainer = document.getElementById("eventsContainer");
+    this.filterContainer = document.getElementById("filterButtons");
+
+    if (this.eventsContainer && this.filterContainer) {
+      this.initializeEvents();
+      this.createCategoryFilters();
+    } else {
+      console.error("Required elements not found");
+    }
   }
 
   public initializeEvents(category?: string) {
