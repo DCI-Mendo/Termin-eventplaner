@@ -1,3 +1,16 @@
+interface Event {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  price: number;
+  duration: string;
+  capacity: number;
+  icon: string;
+  details: string;
+  isFavorite?: boolean; // Added property for favorites
+}
+
 export const eventsList = [
   {
     id: "1",
