@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Kalender</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #e3f2fd;
+        }
+        h1 {
+            text-align: center;
+            color: #2196F3;
+        }
+        .navigation, .view-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+            height: 100px;
+            overflow-y: auto;
+        }
+        .month-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 300px; /* Feste Breite für die Monatsauswahl */
+        }
+        .navigation button, .view-buttons button {
+            margin: 0 5px;
+            padding: 10px 15px;
+            background-color: #2196F3;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .navigation button:hover, .view-buttons button:hover {
+            background-color: #1976D2;
+        }
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        th {
+            background-color: #2196F3;
+            color: #fff;
+        }
+        td:hover {
+            background-color: #bbdefb;
+        }
+        td {
+            height: 80px;
+            vertical-align: top;
+        }
+        .current-day {
+            background-color: #ffeb3b; /* Farbe für den aktuellen Tag */
+        }
+        /* Popup styles */
+        #loginPopup {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        #popupContent {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        #popupContent input {
+            margin: 5px;
+        }
+        /* Minimal height for empty event rows */
+        .minimal-height td {
+            height: 20px;
+            padding: 5px;
+        }
+        /* Date picker styles */
+        #datePickerContainer,
+        #weekPickerContainer {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        #datePickerContainer input,
+        #weekPickerContainer input {
+            padding: 5px;
+            font-size: 16px;
+        }
+        .user-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+            height: 100px;
+            overflow-y: auto;
+        }
+        .user-buttons button {
+            margin: 0 5px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .user-buttons button:hover {
+            background-color: #388E3C;
+        }
+
+        /* Styles for Year View */
+        #yearContainer {
+            display: none;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .year-month {
+            margin-bottom: 40px;
+        }
+
+        .year-month h2 {
+            text-align: center;
+            color: #2196F3;
+        }
+
+        .year-month table {
+            width: 100%;
+            margin: 0 auto 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="loginPopup">
+        <div id="popupContent">
+            <h2>Login</h2>
+            <input id="username" type="text" placeholder="Benutzername" />
+            <input id="password" type="password" placeholder="Passwort" />
+            <button onclick="checkLogin()">Anmelden</button>
+        </div>
+    </div>
+
+    <div class="navigation" id="navigation">
+        <div class="month-selector">
+            <button onclick="changeMonth(-1)">&#8592;</button>
+            <span id="monthName">April 2024</span>
+            <button onclick="changeMonth(1)">&#8594;</button>
+        </div>
+    </div>
+
+    <div class="view-buttons">
+        <button onclick="setView('day')">Tagesansicht</button>
+        <button onclick="setView('week')">Wochenansicht</button>
+        <button onclick="setView('month')">Monatsansicht</button>
+        <button onclick="setView('year')">Jahresansicht</button>
+    </div>
+
+    <div class="user-buttons" id="userButtons" style="display: none;">
+        <!-- User buttons will be generated here -->
+    </div>
+
+    <h1 id="viewTitle">Monatsansicht</h1>
+
+    <div id="calendarContainer">
+        <table id="calendarTable">
+            <thead>
+                <tr>
+                    <th>Mo</th>
+                    <th>Di</th>
+                    <th>Mi</th>
+                    <th>Do</th>
+                    <th>Fr</th>
+                    <th>Sa</th>
+                    <th>So</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Calendar will be generated here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Wochenansicht -->
+    <div id="weeklyContainer" style="display: none;">
+        <div id="weekPickerContainer">
+            <input type="week" id="weeklyDate" onchange="updateWeeklyView()" />
+        </div>
+        <table id="weeklyTable">
+            <thead>
+                <tr>
+                    <th>Montag</th>
+                    <th>Dienstag</th>
+                    <th>Mittwoch</th>
+                    <th>Donnerstag</th>
+                    <th>Freitag</th>
+                    <th>Samstag</th>
+                    <th>Sonntag</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tagesansicht -->
+    <div id="dailyContainer" style="display: none;">
+        <div id="datePickerContainer">
+            <input type="date" id="dailyDate" onchange="updateDailyView()" />
+        </div>
+        <table id="dailyTable">
+            <thead>
+                <tr>
+                    <th>Uhrzeit</th>
+                    <th>Event</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>00:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>01:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>02:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>03:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>04:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>05:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>06:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>07:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>08:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>09:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>10:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>11:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>12:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>13:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>14:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>15:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>16:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>17:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>18:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>19:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>20:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>21:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>22:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>23:00</td>
+                    <td contenteditable="true"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Jahresansicht -->
+    <div id="yearContainer">
+        <!-- Monate werden hier generiert -->
+    </div>
+
+    <script>
+        const users = [
+            { id: "001", username: "Admin", password: "admin", role: "admin" },
+            { id: "002", username: "user", password: "user", role: "user" }
+        ];
+
+        function checkLogin() {
+            const userInput = document.getElementById('username').value;
+            const passInput = document.getElementById('password').value;
+            const user = users.find(u => u.username === userInput && u.password === passInput);
+            if (user) {
+                // You can store user info here if needed
+                document.getElementById('loginPopup').style.display = 'none';
+                if (user.role === 'admin') {
+                    displayUserButtons();
+                }
+            } else {
+                alert('Falsche Zugangsdaten!');
+            }
+        }
+
+        function displayUserButtons() {
+            const userButtonsContainer = document.getElementById('userButtons');
+            userButtonsContainer.style.display = 'flex';
+            users.forEach(user => {
+                const button = document.createElement('button');
+                button.textContent = user.username;
+                userButtonsContainer.appendChild(button);
+            });
+        }
+
+        const monthNames = [
+            'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+            'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
+        ];
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let currentView = 'month';
+
+        function updateMonth() {
+            document.getElementById('monthName').textContent = monthNames[currentMonth] + ' ' + currentYear;
+            generateCalendar(currentMonth, currentYear);
+        }
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            updateMonth();
+        }
+
+        function setView(view) {
+            currentView = view;
+            document.getElementById('viewTitle').textContent = 
+                view === 'day' ? 'Tagesansicht' :
+                view === 'week' ? 'Wochenansicht' :
+                view === 'month' ? 'Monatsansicht' :
+                'Jahresansicht';
+            
+            document.getElementById('calendarContainer').style.display = view === 'month' ? 'block' : 'none';
+            document.getElementById('dailyContainer').style.display = view === 'day' ? 'block' : 'none';
+            document.getElementById('weeklyContainer').style.display = view === 'week' ? 'block' : 'none';
+            document.getElementById('yearContainer').style.display = view === 'year' ? 'block' : 'none';
+            
+            // Aktualisiere die Sichtbarkeit der Navigation
+            // Navigation ausblenden für 'day', 'week' und 'year' Ansichten
+            document.getElementById('navigation').style.display = 
+                (view === 'day' || view === 'week' || view === 'year') ? 'none' : 'flex';
+            
+            if(view === 'day') {
+                adjustDailyView();
+                setDefaultDate();
+            } else if(view === 'week') {
+                highlightCurrentDayInWeek();
+            } else if(view === 'month') {
+                highlightCurrentDayInMonth();
+            } else if(view === 'year') {
+                generateYearView();
+            }
+        }
+
+        function setDefaultDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dailyDate').value = today;
+        }
+
+        function updateDailyView() {
+            const selectedDate = document.getElementById('dailyDate').value;
+            // Hier können Sie die Logik hinzufügen, um Ereignisse für das ausgewählte Datum anzuzeigen
+            console.log('Ausgewähltes Datum:', selectedDate);
+        }
+
+        function updateWeeklyView() {
+            removeWeeklyHighlight();
+
+            const weeklyDateInput = document.getElementById('weeklyDate').value;
+            if (!weeklyDateInput) return;
+
+            // selectedYear und selectedWeek aus "YYYY-Www" ermitteln
+            const [selectedYear, selectedWeek] = weeklyDateInput.split('-W').map(Number);
+            console.log("Ausgewählte Woche:", selectedYear, selectedWeek);
+
+            // Ersten Tag (Montag) der ausgewählten Kalenderwoche berechnen
+            const firstDayOfWeek = getDateOfISOWeek(selectedYear, selectedWeek);
+
+            // Tabelle leeren
+            const weeklyTable = document.getElementById('weeklyTable').getElementsByTagName('tbody')[0];
+            weeklyTable.innerHTML = '';
+
+            // Neue Zeile anlegen
+            const row = document.createElement('tr');
+
+            // Sieben Tage eintragen (Mo–So)
+            for (let i = 0; i < 7; i++) {
+                const cell = document.createElement('td');
+                cell.contentEditable = true;
+
+                // Datum berechnen: Montag + i Tage
+                const currentDate = new Date(firstDayOfWeek);
+                currentDate.setDate(currentDate.getDate() + i);
+
+                // Inhalt setzen (z. B. "DD.MM.YYYY")
+                const day = String(currentDate.getDate()).padStart(2,'0');
+                const month = String(currentDate.getMonth()+1).padStart(2,'0');
+                const year = currentDate.getFullYear();
+                cell.textContent = `${day}.${month}.${year}`;
+
+                // Falls dieser Tag "heute" ist, markieren
+                const today = new Date();
+                if (
+                    currentDate.getDate() === today.getDate() &&
+                    currentDate.getMonth() === today.getMonth() &&
+                    currentDate.getFullYear() === today.getFullYear()
+                ) {
+                    cell.classList.add('current-day');
+                }
+
+                row.appendChild(cell);
+            }
+
+            weeklyTable.appendChild(row);
+        }
+
+        // Liefert das Montag-Datum der gegebenen ISO-Woche in year/week
+        function getDateOfISOWeek(year, week) {
+            const simple = new Date(year, 0, 1 + (week - 1) * 7);
+            const dow = simple.getDay();
+            const diff = simple.getDate() - dow + (dow === 0 ? -6 : 1);
+            return new Date(simple.setDate(diff));
+        }
+
+        function generateCalendar(month, year) {
+            const calendarTable = document.getElementById('calendarTable').getElementsByTagName('tbody')[0];
+            calendarTable.innerHTML = '';
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            let date = 1;
+            let startDay = firstDay === 0 ? 6 : firstDay - 1;
+
+            for (let i = 0; i < 6; i++) {
+                let row = document.createElement('tr');
+                for (let j = 0; j < 7; j++) {
+                    let cell = document.createElement('td');
+                    if (i === 0 && j < startDay) {
+                        cell.innerHTML = '';
+                    } else if (date > daysInMonth) {
+                        cell.innerHTML = '';
+                    } else {
+                        cell.innerHTML = date;
+                        if (new Date().getDate() === date && new Date().getMonth() === month && new Date().getFullYear() === year) {
+                            cell.classList.add('current-day');
+                        }
+                        date++;
+                    }
+                    row.appendChild(cell);
+                }
+                calendarTable.appendChild(row);
+                if (date > daysInMonth) {
+                    break;
+                }
+            }
+        }
+
+        function highlightCurrentDayInWeek() {
+            removeWeeklyHighlight(); 
+            const today = new Date();
+            const [currentYear, currentWeek] = getWeekNumber(today);
+
+            // Debug: Prüfen, was eingegeben und was berechnet wird
+            console.log("Heutiges Datum:", today);
+            console.log("ISO-Kalenderwoche von heute:", currentWeek);
+            
+            const weeklyDateInput = document.getElementById('weeklyDate').value;
+            if (!weeklyDateInput) return;
+            const [selectedYear, selectedWeek] = weeklyDateInput.split('-W').map(Number);
+            console.log("Ausgewählte Woche (Jahr,KW):", selectedYear, selectedWeek);
+
+            // Nur markieren, wenn es sich um die aktuelle Kalenderwoche handelt
+            if (selectedYear === currentYear && selectedWeek === currentWeek) {
+                const dayOfWeek = today.getDay();
+                const weeklyTable = document.getElementById('weeklyTable').getElementsByTagName('tbody')[0];
+                const rows = weeklyTable.getElementsByTagName('tr');
+                for (let row of rows) {
+                    const cells = row.getElementsByTagName('td');
+                    for (let i = 0; i < cells.length; i++) {
+                        if (i === (dayOfWeek === 0 ? 6 : dayOfWeek - 1)) {
+                            cells[i].classList.add('current-day');
+                        }
+                    }
+                }
+            }
+        }
+
+        function highlightCurrentDayInMonth() {
+            const today = new Date();
+            const calendarTable = document.getElementById('calendarTable').getElementsByTagName('tbody')[0];
+            const rows = calendarTable.getElementsByTagName('tr');
+            for (let row of rows) {
+                const cells = row.getElementsByTagName('td');
+                for (let cell of cells) {
+                    if (cell.textContent == today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
+                        cell.classList.add('current-day');
+                    } else {
+                        cell.classList.remove('current-day');
+                    }
+                }
+            }
+        }
+
+        function adjustDailyView() {
+            const dailyTable = document.getElementById('dailyTable').getElementsByTagName('tbody')[0];
+            const rows = dailyTable.getElementsByTagName('tr');
+            for(let row of rows) {
+                const eventCell = row.getElementsByTagName('td')[1];
+                if(eventCell.textContent.trim() === '') {
+                    row.classList.add('minimal-height');
+                } else {
+                    row.classList.remove('minimal-height');
+                }
+            }
+        }
+
+        // Re-adjust daily view when content is edited
+        document.getElementById('dailyTable').addEventListener('input', function(e) {
+            if(e.target && e.target.nodeName === 'TD') {
+                const row = e.target.parentElement;
+                const eventCell = row.getElementsByTagName('td')[1];
+                if(eventCell.textContent.trim() === '') {
+                    row.classList.add('minimal-height');
+                } else {
+                    row.classList.remove('minimal-height');
+                }
+            }
+        });
+
+        function removeWeeklyHighlight() {
+            const weeklyTable = document.getElementById('weeklyTable').getElementsByTagName('tbody')[0];
+            // Alle Zeilen löschen oder vorhandene Zellen von .current-day befreien
+            const rows = weeklyTable.getElementsByTagName('tr');
+            for (let row of rows) {
+                const cells = row.getElementsByTagName('td');
+                for (let cell of cells) {
+                    cell.classList.remove('current-day');
+                }
+            }
+        }
+
+        // Ermittelt die ISO-Kalenderwoche (1–53) einer gegebenen Date
+        function getWeekNumber(d) {
+            // Kopie des Datums, damit Original nicht verändert wird
+            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            // Donnerstag einer Woche finden
+            date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+            // Erster Tag des Jahres
+            const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+            // Kalenderwoche berechnen
+            const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+            return [date.getUTCFullYear(), weekNo];
+        }
+
+        function generateYearView() {
+            const yearContainer = document.getElementById('yearContainer');
+            yearContainer.innerHTML = ''; // Clear previous content
+
+            for (let month = 0; month < 12; month++) {
+                const monthDiv = document.createElement('div');
+                monthDiv.className = 'year-month';
+
+                const monthTitle = document.createElement('h2');
+                monthTitle.textContent = `${monthNames[month]} ${currentYear}`;
+                monthDiv.appendChild(monthTitle);
+
+                const monthTable = generateMonthTable(month, currentYear);
+                monthDiv.appendChild(monthTable);
+
+                yearContainer.appendChild(monthDiv);
+            }
+
+            highlightCurrentMonthInYearView(); // Optional
+        }
+
+        function generateMonthTable(month, year) {
+            const table = document.createElement('table');
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].forEach(day => {
+                const th = document.createElement('th');
+                th.textContent = day;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            let date = 1;
+            let startDay = firstDay === 0 ? 6 : firstDay - 1;
+
+            for (let i = 0; i < 6; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < 7; j++) {
+                    const cell = document.createElement('td');
+                    if (i === 0 && j < startDay) {
+                        cell.innerHTML = '';
+                    } else if (date > daysInMonth) {
+                        cell.innerHTML = '';
+                    } else {
+                        cell.textContent = date;
+                        if (currentMonth === month && currentYear === new Date().getFullYear() && date === new Date().getDate()) {
+                            cell.classList.add('current-day');
+                        }
+                        date++;
+                    }
+                    row.appendChild(cell);
+                }
+                tbody.appendChild(row);
+                if (date > daysInMonth) {
+                    break;
+                }
+            }
+            table.appendChild(tbody);
+            return table;
+        }
+
+        // Optional: Highlight current month in year view
+        function highlightCurrentMonthInYearView() {
+            const yearContainer = document.getElementById('yearContainer');
+            const monthDivs = yearContainer.getElementsByClassName('year-month');
+            for (let div of monthDivs) {
+                const title = div.getElementsByTagName('h2')[0];
+                if (title.textContent.startsWith(monthNames[new Date().getMonth()])) {
+                    title.style.backgroundColor = '#ffeb3b';
+                } else {
+                    title.style.backgroundColor = '';
+                }
+            }
+        }
+
+        updateMonth();
+    </script>
+</body>
+</html>

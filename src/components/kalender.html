@@ -1,4 +1,4 @@
-<html><head><base href="https://www.EvB-gemeinsamer.Kalender.de">
+<html><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../styles/calendar.css">
@@ -51,6 +51,50 @@
             <button id="reset-filters">Filter zurücksetzen</button>
           </div>
         </div>
+        <script>
+          // Generate person selector buttons with role-based visibility
+          function generatePersonSelectors() {
+            const personContainer = document.querySelector('.person-selector');
+            if (!personContainer) return; // Prevent errors if the container is not found
+            // Remove all buttons except the edit button
+            personContainer.innerHTML = '';
+            const activePersonObj = persons.find(p => p.id === activePerson);
+            persons.forEach(person => {
+              if (activePersonObj.roll === 'admin' || person.id === activePerson || person.roll === 'termine') {
+          const btn = document.createElement('button');
+          btn.className = person.id === activePerson ? 'active' : '';
+          btn.setAttribute('data-person', person.id);
+          btn.style.backgroundColor = person.color;
+          btn.style.color = getContrastYIQ(person.color);
+          btn.innerHTML = `<span>${person.name}</span>`;
+          btn.addEventListener('click', () => {
+            if (activePersonObj.roll === 'admin' || person.id === activePerson) {
+              setActivePerson(person.id);
+            }
+          });
+          personContainer.appendChild(btn);
+              }
+            });
+            // Re-add the edit button for admin users
+            if (activePersonObj.roll === 'admin') {
+              const editBtn = document.createElement('button');
+              editBtn.className = 'edit-person-btn';
+              editBtn.id = 'open-edit-modal';
+              editBtn.textContent = '✏️';
+              personContainer.appendChild(editBtn);
+              // Re-attach the event listener to the new edit button
+              openEditModalBtn = document.getElementById('open-edit-modal');
+              if (openEditModalBtn) {
+          openEditModalBtn.addEventListener('click', () => {
+            populateEditModal();
+            editModal.style.display = 'flex';
+          });
+              }
+            }
+            // Also regenerate filter selectors
+            generateFilterSelectors();
+          }
+        </script>
         <div class="view-selector">
           <button data-view="day" class="view-btn">Tagesansicht</button>
           <button data-view="week" class="view-btn">Wochenansicht</button>
