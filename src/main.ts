@@ -4,13 +4,10 @@ import { navigateTo } from "../features/router";
 import { closePopup } from "./components/popup";
 
 const initApp = () => {
-  // Load the header dynamically
   loadHeader();
 
-  // Load the initial content based on the current URL
   navigateTo(window.location.pathname);
 
-  // Load the popup dynamically
   fetch("/src/components/popup.html")
     .then((response) => response.text())
     .then((html) => {
