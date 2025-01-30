@@ -153,46 +153,48 @@ export class EventRenderer {
       console.error("Event not found or eventsContainer element not found");
     }
   }
+
   // Create an event card for each event
   private createEventCard(event: Event): string {
     const isSoldOut = event.capacity === 0;
 
     return `
-      <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition hover:scale-105">
-        <div class="p-6">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold text-blue-600">${event.title}</h2>
-            <i class="${event.icon} text-3xl text-blue-500"></i>
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition hover:scale-105">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold text-blue-600">${event.title}</h2>
+          <i class="${event.icon} text-3xl text-blue-500"></i>
+        </div>
+        <p class="text-gray-600 mb-4">${event.description}</p>
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <div>
+            <p class="font-semibold">Price: ${event.price} €</p>
+            <p class="text-sm text-gray-500">Duration: ${event.duration}</p>
           </div>
-          <p class="text-gray-600 mb-4">${event.description}</p>
-          <div class="grid grid-cols-2 gap-2 mb-4">
-            <div>
-              <p class="font-semibold">Price: ${event.price} €</p>
-              <p class="text-sm text-gray-500">Duration: ${event.duration}</p>
-            </div>
-            <div>
-              <p class="font-semibold">Capacity: ${event.capacity}</p>
-              <p class="text-sm text-gray-500">Category: ${event.category}</p>
-            </div>
+          <div>
+            <p class="font-semibold">Capacity: ${event.capacity}</p>
+            <p class="text-sm text-gray-500">Category: ${event.category}</p>
           </div>
-          <div class="flex justify-between items-center">
-            <button class="booking-button bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition" 
-              data-id="${event.id}" ${isSoldOut ? "disabled" : ""}>
-              ${isSoldOut ? "Sold Out" : "Booking"}
+        </div>
+        <div class="flex justify-between items-center">
+          <button class="booking-button bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition" 
+            data-id="${event.id}" ${isSoldOut ? "disabled" : ""}>
+            ${isSoldOut ? "Sold Out" : "Booking"}
+          </button>
+          <div class="flex space-x-2">
+            <button class="favorite-button ${event.isFavorite ? "text-red-500" : "text-gray-500"} hover:text-red-600" data-id="${event.id}">
+              <i class="fas fa-heart"></i>
             </button>
-            <div class="flex space-x-2">
-              <button class="favorite-button ${event.isFavorite ? "text-red-500" : "text-gray-500"} hover:text-red-600" data-id="${event.id}">
-                <i class="fas fa-heart"></i>
-              </button>
-              <button class="info-icon text-blue-500 hover:text-blue-600" data-id="${event.id}">
-                <i class="fas fa-info-circle"></i>
-              </button>
-            </div>
+            <button class="info-icon text-blue-500 hover:text-blue-600" data-id="${event.id}">
+              <i class="fas fa-info-circle"></i>
+            </button>
           </div>
         </div>
       </div>
-    `;
+    </div>
+  `;
   }
+
   // Create category filters
   private createCategoryFilters() {
     const categories = this.eventService.getUniqueCategories();

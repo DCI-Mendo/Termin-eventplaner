@@ -2,6 +2,7 @@ import { routes } from "./routes";
 import { initContactPage } from "../src/pages/contact";
 import { openPopup, closePopup } from "../src/components/popup";
 import { EventRenderer } from "../src/pages/eventBooking";
+import notFoundPage from "../src/pages/notFound";
 
 export function navigateTo(url: string) {
   history.pushState(null, "", url);
@@ -31,7 +32,13 @@ function loadContent(url: string) {
         console.error("App element not found");
       }
     })
-    .catch((error) => console.error("Error loading content:", error));
+    .catch((error) => {
+      console.error("Error loading content:", error);
+      const appElement = document.getElementById("app");
+      if (appElement) {
+        appElement.innerHTML = notFoundPage();
+      }
+    });
 }
 
 export function initializePageLogic() {
