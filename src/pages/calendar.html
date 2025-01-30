@@ -288,6 +288,13 @@
           role: "user",
           firstLogin: false,
         },
+        {
+          id: "003",
+          username: "Allgemeine Termine",
+          password: "HipHopMash790912", // Default password
+          role: "allgemein", // Ensure the role is "allgemein"
+          firstLogin: false,
+        },
       ];
 
       // Save users to localStorage
@@ -314,9 +321,7 @@
           // Store logged-in user ID
           localStorage.setItem("loggedInUser", user.id);
           document.getElementById("loginPopup").style.display = "none";
-          if (user.role === "admin") {
-            displayUserButtons();
-          }
+          displayUserButtons(); // Call for all users
           if (user.firstLogin) {
             openChangePasswordPopup(user.id);
           }
@@ -325,28 +330,54 @@
         }
       }
 
+      // 1. Update the displayUserButtons function to show all users for admin
       function displayUserButtons() {
         const userButtonsContainer = document.getElementById("userButtons");
         userButtonsContainer.innerHTML = ""; // Clear existing buttons
-        users.forEach((user) => {
-          const button = document.createElement("button");
-          button.textContent = user.username;
-          userButtonsContainer.appendChild(button);
-        });
 
         // Get the currently logged-in user
         const loggedInUserId = localStorage.getItem("loggedInUser");
         const currentUser = users.find((u) => u.id === loggedInUserId);
 
-        // If current user is admin, add Edit button
-        if (currentUser && currentUser.role === "admin") {
+        if (!currentUser) return;
+
+        if (currentUser.role === "admin") {
+          // Display buttons for all users
+          users.forEach((user) => {
+            const button = document.createElement("button");
+            button.textContent = user.username;
+            button.onclick = () => selectUserForManagement(user.id);
+            userButtonsContainer.appendChild(button);
+          });
+
+          // Add "Allgemeine Termine" button
+          const generalTermButton = document.createElement("button");
+          generalTermButton.textContent = "Allgemeine Termine";
+          generalTermButton.onclick = () => selectUserForManagement("003"); // "Allgemeine Termine" user ID
+          userButtonsContainer.appendChild(generalTermButton);
+        } else {
+          // For regular users, display only their own button and "Allgemeine Termine"
+          const userButton = document.createElement("button");
+          userButton.textContent = currentUser.username;
+          userButtonsContainer.appendChild(userButton);
+
+          const generalTermButton = document.createElement("button");
+          generalTermButton.textContent = "Allgemeine Termine";
+          generalTermButton.onclick = function () {
+            setView('general');
+          };
+          userButtonsContainer.appendChild(generalTermButton);
+        }
+
+        // If current user is admin, add Edit Benutzer button
+        if (currentUser.role === "admin") {
           const editButton = document.createElement("button");
           editButton.textContent = "Edit Benutzer";
           editButton.onclick = openAddUserPopup;
           userButtonsContainer.appendChild(editButton);
         }
 
-        // **Neue Zeile hinzufügen, um die Benutzerbuttons sichtbar zu machen**
+        // Make user buttons visible
         userButtonsContainer.style.display = "flex";
       }
 
@@ -659,6 +690,7 @@
         updateMonth();
       }
 
+      // 4. Handle the "general" view in the setView function
       function setView(view) {
         currentView = view;
         document.getElementById("viewTitle").textContent =
@@ -668,10 +700,16 @@
             ? "Wochenansicht"
             : view === "month"
             ? "Monatsansicht"
-            : "Jahresansicht";
+            : view === "year"
+            ? "Jahresansicht"
+            : view === "general"
+            ? "Allgemeine Termine"
+            : view === "manageUser"
+            ? "Benutzer Termine verwalten"
+            : "";
 
         document.getElementById("calendarContainer").style.display =
-          view === "month" ? "block" : "none";
+          view === "month" || view === "general" || view === "manageUser" ? "block" : "none";
         document.getElementById("dailyContainer").style.display =
           view === "day" ? "block" : "none";
         document.getElementById("weeklyContainer").style.display =
@@ -679,10 +717,9 @@
         document.getElementById("yearContainer").style.display =
           view === "year" ? "block" : "none";
 
-        // Aktualisiere die Sichtbarkeit der Navigation
-        // Navigation ausblenden für 'day', 'week' und 'year' Ansichten
+        // Hide navigation for certain views
         document.getElementById("navigation").style.display =
-          view === "day" || view === "week" || view === "year"
+          view === "day" || view === "week" || view === "year" || view === "general" || view === "manageUser"
             ? "none"
             : "flex";
 
@@ -697,6 +734,10 @@
           renderCalendarEvents();
         } else if (view === "year") {
           generateYearView();
+        } else if (view === "general") {
+          renderGeneralTerms();
+        } else if (view === "manageUser") {
+          // Additional logic if needed for managing user
         }
       }
 
@@ -1399,6 +1440,8 @@
           return;
         }
 
+        const loggedInUserId = localStorage.getItem("loggedInUser");
+
         const term = {
           id: generateTermId(),
           title,
@@ -1406,6 +1449,7 @@
           dateFrom: `${dateFrom}T${timeFrom}`,
           dateTo: `${dateTo}T${timeTo}`,
           info,
+          creatorId: loggedInUserId, // Associate term with creator
         };
 
         terms.push(term);
@@ -1429,6 +1473,8 @@
       function renderCalendarEvents() {
         const calendarTable = document.getElementById("calendarTable").getElementsByTagName("tbody")[0];
         const today = new Date();
+        const loggedInUserId = localStorage.getItem("loggedInUser");
+        const currentUser = users.find(u => u.id === loggedInUserId);
 
         // Entferne vorhandene Event-Titel
         const eventElements = document.querySelectorAll(".calendar-event");
@@ -1436,7 +1482,19 @@
 
         terms.forEach(term => {
           const termDate = new Date(term.dateFrom);
-          if (termDate.getMonth() === currentMonth && termDate.getFullYear() === currentYear) {
+          const isGeneralTerm = term.creatorId === "003"; // "Allgemeine Termine" user ID
+          const isAdmin = currentUser.role === "admin";
+          const isCreator = term.creatorId === loggedInUserId;
+
+          if (
+            termDate.getMonth() === currentMonth &&
+            termDate.getFullYear() === currentYear &&
+            (
+              isAdmin ||
+              (isGeneralTerm && isAdmin) ||
+              isCreator
+            )
+          ) {
             const day = termDate.getDate();
             const rows = calendarTable.getElementsByTagName("tr");
             for (let row of rows) {
@@ -1471,6 +1529,16 @@
           return;
         }
 
+        const loggedInUserId = localStorage.getItem("loggedInUser");
+        const currentUser = users.find(u => u.id === loggedInUserId);
+        const isAdmin = currentUser.role === "admin";
+        const isCreator = term.creatorId === loggedInUserId;
+        const isGeneralTerm = term.creatorId === "003";
+
+        // If term is a general term and user is not admin, only view details
+        const canEdit = isAdmin || (isCreator && !isGeneralTerm);
+        const canDelete = isAdmin || (isCreator && !isGeneralTerm);
+
         const infoPopup = document.createElement("div");
         infoPopup.id = "termInfoPopup";
         infoPopup.style.position = "fixed";
@@ -1503,23 +1571,27 @@
         popupContent.innerHTML += `<p><strong>Bis:</strong> ${formatDateTime(term.dateTo)}</p>`;
         popupContent.innerHTML += `<p><strong>Weitere Informationen:</strong> ${term.info}</p>`;
 
-        // Bearbeiten Button
-        const editButton = document.createElement("button");
-        editButton.textContent = "Bearbeiten";
-        editButton.style.margin = "10px 5px";
-        editButton.onclick = function () {
-          openEditTermPopup(term.id);
-        };
-        popupContent.appendChild(editButton);
+        if (canEdit) {
+          // Bearbeiten Button
+          const editButton = document.createElement("button");
+          editButton.textContent = "Bearbeiten";
+          editButton.style.margin = "10px 5px";
+          editButton.onclick = function () {
+            openEditTermPopup(term.id);
+          };
+          popupContent.appendChild(editButton);
+        }
 
-        // Löschen Button
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Löschen";
-        deleteButton.style.margin = "10px 5px";
-        deleteButton.onclick = function () {
-          deleteTerm(term.id);
-        };
-        popupContent.appendChild(deleteButton);
+        if (canDelete) {
+          // Löschen Button
+          const deleteButton = document.createElement("button");
+          deleteButton.textContent = "Löschen";
+          deleteButton.style.margin = "10px 5px";
+          deleteButton.onclick = function () {
+            deleteTerm(term.id);
+          };
+          popupContent.appendChild(deleteButton);
+        }
 
         // Abbrechen Button
         const cancelButton = document.createElement("button");
@@ -1724,6 +1796,8 @@
         const dailyTable = document.getElementById("dailyTable").getElementsByTagName("tbody")[0];
         dailyTable.innerHTML = "";
         const selectedDate = document.getElementById("dailyDate").value;
+        const loggedInUserId = localStorage.getItem("loggedInUser");
+        const currentUser = users.find(u => u.id === loggedInUserId);
 
         for (let hour = 0; hour < 24; hour++) {
           const time = `${hour.toString().padStart(2, '0')}:00`;
@@ -1739,8 +1813,14 @@
           terms.forEach(term => {
             const termStart = new Date(term.dateFrom);
             const termEnd = new Date(term.dateTo);
+            const isGeneralTerm = term.creatorId === "003"; // "Allgemeine Termine" user ID
+            const isAdmin = currentUser.role === "admin";
+            const isCreator = term.creatorId === loggedInUserId;
             
-            if (termStart.toISOString().split('T')[0] === selectedDate) {
+            if (
+              termStart.toISOString().split('T')[0] === selectedDate &&
+              (isAdmin || isCreator)
+            ) {
               const startHour = termStart.getHours();
               const endHour = termEnd.getHours() + (termEnd.getMinutes() > 0 ? 1 : 0);
               
@@ -1775,6 +1855,9 @@
       function renderWeeklyView() {
         const weeklyTable = document.getElementById("weeklyTable").getElementsByTagName("tbody")[0];
         const weeklyDateInput = document.getElementById("weeklyDate").value;
+        const loggedInUserId = localStorage.getItem("loggedInUser");
+        const currentUser = users.find(u => u.id === loggedInUserId);
+
         if (!weeklyDateInput) return;
       
         const [selectedYear, selectedWeek] = weeklyDateInput.split("-W").map(Number);
@@ -1799,10 +1882,14 @@
           terms.forEach(term => {
             const termStart = new Date(term.dateFrom);
             const termEnd = new Date(term.dateTo);
+            const isGeneralTerm = term.creatorId === "003"; // "Allgemeine Termine" user ID
+            const isAdmin = currentUser.role === "admin";
+            const isCreator = term.creatorId === loggedInUserId;
             
-            const termDate = `${termStart.getFullYear()}-${String(termStart.getMonth() + 1).padStart(2, '0')}-${String(termStart.getDate()).padStart(2, '0')}`;
-            
-            if (termDate === formattedDate) {
+            if (
+              `${termStart.getFullYear()}-${String(termStart.getMonth() + 1).padStart(2, '0')}-${String(termStart.getDate()).padStart(2, '0')}` === formattedDate &&
+              (isAdmin || isCreator)
+            ) {
               const eventDiv = document.createElement("div");
               eventDiv.className = "weekly-event";
               
@@ -1827,6 +1914,44 @@
         }
       }
       
+      // 5. Implement the renderGeneralTerms function
+      function renderGeneralTerms() {
+        const calendarTable = document
+          .getElementById("calendarTable")
+          .getElementsByTagName("tbody")[0];
+        
+        // Clear existing events
+        const eventElements = document.querySelectorAll(".calendar-event");
+        eventElements.forEach(el => el.remove());
+
+        terms.forEach(term => {
+          const termDate = new Date(term.dateFrom);
+          if (term.creatorId === "003") { // "Allgemeine Termine" user ID
+            const day = termDate.getDate();
+            const rows = calendarTable.getElementsByTagName("tr");
+            for (let row of rows) {
+              const cells = row.getElementsByTagName("td");
+              for (let cell of cells) {
+                if (parseInt(cell.textContent) === day) {
+                  const eventDiv = document.createElement("div");
+                  eventDiv.className = "calendar-event";
+                  eventDiv.textContent = `${termDate.getHours()}:${String(termDate.getMinutes()).padStart(2, '0')} ${term.title}`;
+                  eventDiv.style.backgroundColor = "#ff5722";
+                  eventDiv.style.color = "#fff";
+                  eventDiv.style.padding = "2px";
+                  eventDiv.style.marginTop = "2px";
+                  eventDiv.style.borderRadius = "2px";
+                  eventDiv.style.cursor = "pointer";
+                  eventDiv.onclick = function () {
+                    openTermInfoPopup(term.id);
+                  };
+                  cell.appendChild(eventDiv);
+                }
+              }
+            }
+          }
+        });
+      }
 
       // Aktualisiere die Kalenderansicht nach dem Laden
       function updateMonth() {
@@ -1849,6 +1974,180 @@
       renderCalendarEvents();
       renderDailyView();
       renderWeeklyView();
+
+      // 2. Add function to handle user selection for management by admin
+      let selectedUserId = null;
+
+      function selectUserForManagement(userId) {
+        selectedUserId = userId;
+        setView('manageUser');
+        renderUserAppointments(userId);
+      }
+
+      // 4. Implement renderUserAppointments to display and manage selected user's appointments
+      function renderUserAppointments(userId) {
+        const calendarTable = document
+          .getElementById("calendarTable")
+          .getElementsByTagName("tbody")[0];
+        
+        // Clear existing events
+        const eventElements = document.querySelectorAll(".calendar-event");
+        eventElements.forEach(el => el.remove());
+
+        const userTerms = terms.filter(term => term.creatorId === userId);
+
+        userTerms.forEach(term => {
+          const termDate = new Date(term.dateFrom);
+          const day = termDate.getDate();
+          const rows = calendarTable.getElementsByTagName("tr");
+          for (let row of rows) {
+            const cells = row.getElementsByTagName("td");
+            for (let cell of cells) {
+              if (parseInt(cell.textContent) === day) {
+                const eventDiv = document.createElement("div");
+                eventDiv.className = "calendar-event";
+                eventDiv.textContent = `${termDate.getHours()}:${String(termDate.getMinutes()).padStart(2, '0')} ${term.title}`;
+                eventDiv.style.backgroundColor = "#4caf50";
+                eventDiv.style.color = "#fff";
+                eventDiv.style.padding = "2px";
+                eventDiv.style.marginTop = "2px";
+                eventDiv.style.borderRadius = "2px";
+                eventDiv.style.cursor = "pointer";
+                eventDiv.onclick = function () {
+                  openTermInfoPopup(term.id, userId);
+                };
+                cell.appendChild(eventDiv);
+              }
+            }
+          }
+        });
+
+        // Optionally, add a button to create new appointment for this user
+        const createButton = document.createElement("button");
+        createButton.textContent = "Neuen Termin erstellen";
+        createButton.onclick = () => openCreateTermPopup(userId);
+        document.getElementById("calendarContainer").appendChild(createButton);
+      }
+
+      // 5. Update appointment creation to include selectedUserId when admin is managing a user
+      function openCreateTermPopup(userId = null) {
+        const bookPopup = document.createElement("div");
+        bookPopup.id = "bookTermPopup";
+        bookPopup.style.position = "fixed";
+        bookPopup.style.top = "0";
+        bookPopup.style.left = "0";
+        bookPopup.style.width = "100%";
+        bookPopup.style.height = "100%";
+        bookPopup.style.background = "rgba(0,0,0,0.5)";
+        bookPopup.style.display = "flex";
+        bookPopup.style.justifyContent = "center";
+        bookPopup.style.alignItems = "center";
+        bookPopup.style.zIndex = "1000";
+
+        const popupContent = document.createElement("div");
+        popupContent.id = "popupContent";
+        popupContent.style.background = "#fff";
+        popupContent.style.padding = "20px";
+        popupContent.style.borderRadius = "5px";
+        popupContent.style.textAlign = "center";
+        popupContent.style.width = "400px";
+
+        const title = document.createElement("h2");
+        title.textContent = "Termin buchen";
+        popupContent.appendChild(title);
+
+        // Titel Eingabe
+        const termTitle = document.createElement("input");
+        termTitle.type = "text";
+        termTitle.id = "termTitle";
+        termTitle.placeholder = "Titel";
+        termTitle.style.width = "80%";
+        termTitle.style.margin = "5px 0";
+        popupContent.appendChild(termTitle);
+
+        // Ort Eingabe
+        const termLocation = document.createElement("input");
+        termLocation.type = "text";
+        termLocation.id = "termLocation";
+        termLocation.placeholder = "Ort";
+        termLocation.style.width = "80%";
+        termLocation.style.margin = "5px 0";
+        popupContent.appendChild(termLocation);
+
+        // Datum und Uhrzeit von
+        const dateFrom = document.createElement("input");
+        dateFrom.type = "date";
+        dateFrom.id = "termDateFrom";
+        dateFrom.style.width = "80%";
+        dateFrom.style.margin = "5px 0";
+        popupContent.appendChild(dateFrom);
+
+        const timeFrom = document.createElement("input");
+        timeFrom.type = "time";
+        timeFrom.id = "termTimeFrom";
+        timeFrom.style.width = "80%";
+        timeFrom.style.margin = "5px 0";
+        popupContent.appendChild(timeFrom);
+
+        // Datum und Uhrzeit bis
+        const dateTo = document.createElement("input");
+        dateTo.type = "date";
+        dateTo.id = "termDateTo";
+        dateTo.style.width = "80%";
+        dateTo.style.margin = "5px 0";
+        popupContent.appendChild(dateTo);
+
+        const timeTo = document.createElement("input");
+        timeTo.type = "time";
+        timeTo.id = "termTimeTo";
+        timeTo.style.width = "80%";
+        timeTo.style.margin = "5px 0";
+        popupContent.appendChild(timeTo);
+
+        // Weitere Informationen
+        const additionalInfo = document.createElement("textarea");
+        additionalInfo.id = "termInfo";
+        additionalInfo.placeholder = "Weitere Informationen";
+        additionalInfo.style.width = "80%";
+        additionalInfo.style.margin = "5px 0";
+        popupContent.appendChild(additionalInfo);
+
+        // Speichern Button
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Speichern";
+        saveButton.style.margin = "10px 5px";
+        saveButton.onclick = function () {
+          const title = document.getElementById("termTitle").value;
+          const dateFrom = document.getElementById("termDateFrom").value;
+          const dateTo = document.getElementById("termDateTo").value;
+          
+          const newTerm = {
+            id: generateUniqueId(),
+            title: title,
+            dateFrom: dateFrom,
+            dateTo: dateTo,
+            creatorId: userId || localStorage.getItem("loggedInUser"),
+          };
+          
+          terms.push(newTerm);
+          localStorage.setItem("terms", JSON.stringify(terms));
+          closeCreateTermPopup();
+          setView(currentView);
+        };
+        popupContent.appendChild(saveButton);
+
+        // Abbrechen Button
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Abbrechen";
+        cancelButton.style.margin = "10px 5px";
+        cancelButton.onclick = function () {
+          document.getElementById("bookTermPopup").remove();
+        };
+        popupContent.appendChild(cancelButton);
+
+        bookPopup.appendChild(popupContent);
+        document.body.appendChild(bookPopup);
+      }
     </script>
   </body>
 </html>
