@@ -1,5 +1,5 @@
 import { eventsList } from "../data/events"; // Import the eventsList from events.ts
-import { navigateTo } from ""; // Import the navigateTo function from router.ts
+import { navigateTo } from "../../features/router"; // Import the navigateTo function from router.ts
 
 interface Event {
   id: string;
@@ -106,6 +106,16 @@ export class EventRenderer {
         navigateTo(`/services/${eventId}`);
       });
     });
+
+    const infoIcons = document.querySelectorAll(".info-icon");
+
+    infoIcons.forEach((icon) => {
+      icon.addEventListener("click", (event) => {
+        event.stopPropagation(); // Prevent the card click event
+        const eventId = icon.getAttribute("data-id");
+        navigateTo(`/services/${eventId}`);
+      });
+    });
   }
 
   // Render the details of a specific event
@@ -124,6 +134,7 @@ export class EventRenderer {
             <p class="text-sm text-gray-500">Duration: ${event.duration}</p>
             <p class="text-sm text-gray-500">Category: ${event.category}</p>
             <p class="text-sm text-gray-500">Details: ${event.details}</p>
+            <p class="text-sm text-gray-500">Capacity: ${event.capacity}</p>
             <div class="flex justify-between items-center mt-4">
               <button class="booking-button bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition" 
                 data-id="${event.id}" ${event.capacity === 0 ? "disabled" : ""}>
@@ -142,7 +153,6 @@ export class EventRenderer {
       console.error("Event not found or eventsContainer element not found");
     }
   }
-
   // Create an event card for each event
   private createEventCard(event: Event): string {
     const isSoldOut = event.capacity === 0;
@@ -174,16 +184,15 @@ export class EventRenderer {
               <button class="favorite-button ${event.isFavorite ? "text-red-500" : "text-gray-500"} hover:text-red-600" data-id="${event.id}">
                 <i class="fas fa-heart"></i>
               </button>
-              <a href="event-details.html?id=${event.id}" class="text-blue-500 hover:text-blue-600">
+              <button class="info-icon text-blue-500 hover:text-blue-600" data-id="${event.id}">
                 <i class="fas fa-info-circle"></i>
-              </a>
+              </button>
             </div>
           </div>
         </div>
       </div>
     `;
   }
-
   // Create category filters
   private createCategoryFilters() {
     const categories = this.eventService.getUniqueCategories();
