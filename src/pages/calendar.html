@@ -192,6 +192,12 @@
     <h1 id="viewTitle">Monatsansicht</h1>
 
     <div id="calendarContainer">
+      <button id="terminBuchenButton" onclick="openCreateTermPopup()">
+        Termin buchen
+      </button>
+      
+      <!-- Rest of the calendar UI -->
+      
       <table id="calendarTable">
         <thead>
           <tr>
@@ -271,6 +277,23 @@
       <!-- Monate werden hier generiert -->
     </div>
 
+    <!-- Add a hidden input in the createTermPopup to store userId -->
+    <div id="createTermPopup" style="display:none;">
+      <h2>Neuen Termin erstellen</h2>
+      <label for="termTitle">Titel:</label>
+      <input type="text" id="termTitle" name="termTitle" required />
+      <br />
+      <label for="termDateFrom">Von:</label>
+      <input type="datetime-local" id="termDateFrom" name="termDateFrom" required />
+      <br />
+      <label for="termDateTo">Bis:</label>
+      <input type="datetime-local" id="termDateTo" name="termDateTo" required />
+      <br />
+      <input type="hidden" id="termUserId" name="termUserId" />
+      <button id="saveTermButton">Speichern</button>
+      <button onclick="closeCreateTermPopup()">Abbrechen</button>
+    </div>
+
     <script>
       // Initialize users from localStorage or set default users
       let users = JSON.parse(localStorage.getItem("users")) || [
@@ -330,17 +353,17 @@
         }
       }
 
-      // 1. Update the displayUserButtons function to show all users for admin
+      // 1. Update displayUserButtons to handle admin and user roles
       function displayUserButtons() {
         const userButtonsContainer = document.getElementById("userButtons");
         userButtonsContainer.innerHTML = ""; // Clear existing buttons
-
+      
         // Get the currently logged-in user
         const loggedInUserId = localStorage.getItem("loggedInUser");
         const currentUser = users.find((u) => u.id === loggedInUserId);
-
+      
         if (!currentUser) return;
-
+      
         if (currentUser.role === "admin") {
           // Display buttons for all users
           users.forEach((user) => {
@@ -349,7 +372,7 @@
             button.onclick = () => selectUserForManagement(user.id);
             userButtonsContainer.appendChild(button);
           });
-
+      
           // Add "Allgemeine Termine" button
           const generalTermButton = document.createElement("button");
           generalTermButton.textContent = "Allgemeine Termine";
@@ -359,16 +382,15 @@
           // For regular users, display only their own button and "Allgemeine Termine"
           const userButton = document.createElement("button");
           userButton.textContent = currentUser.username;
+          userButton.onclick = () => selectUserView('self');
           userButtonsContainer.appendChild(userButton);
-
+      
           const generalTermButton = document.createElement("button");
           generalTermButton.textContent = "Allgemeine Termine";
-          generalTermButton.onclick = function () {
-            setView('general');
-          };
+          generalTermButton.onclick = () => selectUserView('general');
           userButtonsContainer.appendChild(generalTermButton);
         }
-
+      
         // If current user is admin, add Edit Benutzer button
         if (currentUser.role === "admin") {
           const editButton = document.createElement("button");
@@ -376,7 +398,7 @@
           editButton.onclick = openAddUserPopup;
           userButtonsContainer.appendChild(editButton);
         }
-
+      
         // Make user buttons visible
         userButtonsContainer.style.display = "flex";
       }
@@ -706,10 +728,12 @@
             ? "Allgemeine Termine"
             : view === "manageUser"
             ? "Benutzer Termine verwalten"
+            : view === "selfView"
+            ? "Meine Termine"
             : "";
 
         document.getElementById("calendarContainer").style.display =
-          view === "month" || view === "general" || view === "manageUser" ? "block" : "none";
+          view === "month" || view === "general" || view === "manageUser" || view === "selfView" ? "block" : "none";
         document.getElementById("dailyContainer").style.display =
           view === "day" ? "block" : "none";
         document.getElementById("weeklyContainer").style.display =
@@ -719,7 +743,7 @@
 
         // Hide navigation for certain views
         document.getElementById("navigation").style.display =
-          view === "day" || view === "week" || view === "year" || view === "general" || view === "manageUser"
+          view === "day" || view === "week" || view === "year" || view === "general" || view === "manageUser" || view === "selfView"
             ? "none"
             : "flex";
 
@@ -735,9 +759,11 @@
         } else if (view === "year") {
           generateYearView();
         } else if (view === "general") {
-          renderGeneralTerms();
+          renderGeneralTerms(); // Only calls renderUserAppointments without setView
         } else if (view === "manageUser") {
           // Additional logic if needed for managing user
+        } else if (view === "selfView") {
+          // Additional logic if needed for self view
         }
       }
 
@@ -1916,41 +1942,8 @@
       
       // 5. Implement the renderGeneralTerms function
       function renderGeneralTerms() {
-        const calendarTable = document
-          .getElementById("calendarTable")
-          .getElementsByTagName("tbody")[0];
-        
-        // Clear existing events
-        const eventElements = document.querySelectorAll(".calendar-event");
-        eventElements.forEach(el => el.remove());
-
-        terms.forEach(term => {
-          const termDate = new Date(term.dateFrom);
-          if (term.creatorId === "003") { // "Allgemeine Termine" user ID
-            const day = termDate.getDate();
-            const rows = calendarTable.getElementsByTagName("tr");
-            for (let row of rows) {
-              const cells = row.getElementsByTagName("td");
-              for (let cell of cells) {
-                if (parseInt(cell.textContent) === day) {
-                  const eventDiv = document.createElement("div");
-                  eventDiv.className = "calendar-event";
-                  eventDiv.textContent = `${termDate.getHours()}:${String(termDate.getMinutes()).padStart(2, '0')} ${term.title}`;
-                  eventDiv.style.backgroundColor = "#ff5722";
-                  eventDiv.style.color = "#fff";
-                  eventDiv.style.padding = "2px";
-                  eventDiv.style.marginTop = "2px";
-                  eventDiv.style.borderRadius = "2px";
-                  eventDiv.style.cursor = "pointer";
-                  eventDiv.onclick = function () {
-                    openTermInfoPopup(term.id);
-                  };
-                  cell.appendChild(eventDiv);
-                }
-              }
-            }
-          }
-        });
+        // Directly render appointments for "Allgemeine Termine"
+        renderUserAppointments("003"); // "003" is the ID for "Allgemeine Termine"
       }
 
       // Aktualisiere die Kalenderansicht nach dem Laden
@@ -1975,6 +1968,24 @@
       renderDailyView();
       renderWeeklyView();
 
+      // 2. Add functions to handle user selection for admin and regular users
+
+      function selectUserForManagement(userId) {
+        selectedUserId = userId;
+        setView('manageUser');
+        renderUserAppointments(userId);
+      }
+
+      function selectUserView(viewType) {
+        if (viewType === 'self') {
+          setView('selfView');
+          renderUserAppointments(localStorage.getItem("loggedInUser"));
+        } else if (viewType === 'general') {
+          setView('general');
+          renderGeneralTerms();
+        }
+      }
+
       // 2. Add function to handle user selection for management by admin
       let selectedUserId = null;
 
@@ -1994,27 +2005,41 @@
         const eventElements = document.querySelectorAll(".calendar-event");
         eventElements.forEach(el => el.remove());
 
-        const userTerms = terms.filter(term => term.creatorId === userId);
+        // Filter terms based on userId and include "Allgemeine Termine"
+        const userTerms = terms.filter(term => term.creatorId === userId || term.creatorId === "003");
 
         userTerms.forEach(term => {
-          const termDate = new Date(term.dateFrom);
-          const day = termDate.getDate();
+          const termStart = new Date(term.dateFrom);
+          const termEnd = new Date(term.dateTo);
+          const day = termStart.getDate();
           const rows = calendarTable.getElementsByTagName("tr");
           for (let row of rows) {
             const cells = row.getElementsByTagName("td");
             for (let cell of cells) {
               if (parseInt(cell.textContent) === day) {
                 const eventDiv = document.createElement("div");
-                eventDiv.className = "calendar-event";
-                eventDiv.textContent = `${termDate.getHours()}:${String(termDate.getMinutes()).padStart(2, '0')} ${term.title}`;
-                eventDiv.style.backgroundColor = "#4caf50";
+                // Simplified event display to show only time and title
+                const timeFrom = termStart.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                const timeTo = termEnd.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                eventDiv.textContent = `${timeFrom} - ${timeTo}: ${term.title}`;
+                
+                // Assign colors based on creator
+                if (term.creatorId === "001") { // Admin
+                  eventDiv.style.backgroundColor = "#f44336"; // Red
+                } else if (term.creatorId === "002") { // Regular user
+                  eventDiv.style.backgroundColor = "#4caf50"; // Green
+                } else if (term.creatorId === "003") { // Allgemeine Termine
+                  eventDiv.style.backgroundColor = "#ff9800"; // Orange
+                }
+
                 eventDiv.style.color = "#fff";
-                eventDiv.style.padding = "2px";
+                eventDiv.style.padding = "2px 5px";
                 eventDiv.style.marginTop = "2px";
                 eventDiv.style.borderRadius = "2px";
                 eventDiv.style.cursor = "pointer";
+                eventDiv.style.position = "relative";
                 eventDiv.onclick = function () {
-                  openTermInfoPopup(term.id, userId);
+                  openTermInfoPopup(term.id, term.creatorId);
                 };
                 cell.appendChild(eventDiv);
               }
@@ -2022,14 +2047,22 @@
           }
         });
 
-        // Optionally, add a button to create new appointment for this user
-        const createButton = document.createElement("button");
-        createButton.textContent = "Neuen Termin erstellen";
-        createButton.onclick = () => openCreateTermPopup(userId);
-        document.getElementById("calendarContainer").appendChild(createButton);
+        // Ensure only the "Termin buchen" button is present
+        // Remove any temporary "Neuen Termin erstellen" buttons if they exist
+        const existingCreateButtons = document.querySelectorAll(".temporary-create-button");
+        existingCreateButtons.forEach(button => button.remove());
+
+        const currentUser = users.find(u => u.id === localStorage.getItem("loggedInUser"));
+        if (currentUser.role === "admin" || (currentUser.role === "user" && userId === "003")) {
+          const createButton = document.createElement("button");
+          createButton.textContent = "Termin buchen";
+          createButton.onclick = () => openCreateTermPopup(userId === "003" ? "003" : null);
+          createButton.classList.add("temporary-create-button"); // For easy removal
+          document.getElementById("calendarContainer").appendChild(createButton);
+        }
       }
 
-      // 5. Update appointment creation to include selectedUserId when admin is managing a user
+      // 5. Update openCreateTermPopup to handle userId
       function openCreateTermPopup(userId = null) {
         const bookPopup = document.createElement("div");
         bookPopup.id = "bookTermPopup";
@@ -2147,6 +2180,286 @@
 
         bookPopup.appendChild(popupContent);
         document.body.appendChild(bookPopup);
+      }
+
+      // 5. Update appointment creation to include selectedUserId when admin is managing a user
+      function openCreateTermPopup(userId = null) {
+        const bookPopup = document.createElement("div");
+        bookPopup.id = "bookTermPopup";
+        bookPopup.style.position = "fixed";
+        bookPopup.style.top = "0";
+        bookPopup.style.left = "0";
+        bookPopup.style.width = "100%";
+        bookPopup.style.height = "100%";
+        bookPopup.style.background = "rgba(0,0,0,0.5)";
+        bookPopup.style.display = "flex";
+        bookPopup.style.justifyContent = "center";
+        bookPopup.style.alignItems = "center";
+        bookPopup.style.zIndex = "1000";
+
+        const popupContent = document.createElement("div");
+        popupContent.id = "popupContent";
+        popupContent.style.background = "#fff";
+        popupContent.style.padding = "20px";
+        popupContent.style.borderRadius = "5px";
+        popupContent.style.textAlign = "center";
+        popupContent.style.width = "400px";
+
+        const title = document.createElement("h2");
+        title.textContent = "Termin buchen";
+        popupContent.appendChild(title);
+
+        // Titel Eingabe
+        const termTitle = document.createElement("input");
+        termTitle.type = "text";
+        termTitle.id = "termTitle";
+        termTitle.placeholder = "Titel";
+        termTitle.style.width = "80%";
+        termTitle.style.margin = "5px 0";
+        popupContent.appendChild(termTitle);
+
+        // Ort Eingabe
+        const termLocation = document.createElement("input");
+        termLocation.type = "text";
+        termLocation.id = "termLocation";
+        termLocation.placeholder = "Ort";
+        termLocation.style.width = "80%";
+        termLocation.style.margin = "5px 0";
+        popupContent.appendChild(termLocation);
+
+        // Datum und Uhrzeit von
+        const dateFrom = document.createElement("input");
+        dateFrom.type = "date";
+        dateFrom.id = "termDateFrom";
+        dateFrom.style.width = "80%";
+        dateFrom.style.margin = "5px 0";
+        popupContent.appendChild(dateFrom);
+
+        const timeFrom = document.createElement("input");
+        timeFrom.type = "time";
+        timeFrom.id = "termTimeFrom";
+        timeFrom.style.width = "80%";
+        timeFrom.style.margin = "5px 0";
+        popupContent.appendChild(timeFrom);
+
+        // Datum und Uhrzeit bis
+        const dateTo = document.createElement("input");
+        dateTo.type = "date";
+        dateTo.id = "termDateTo";
+        dateTo.style.width = "80%";
+        dateTo.style.margin = "5px 0";
+        popupContent.appendChild(dateTo);
+
+        const timeTo = document.createElement("input");
+        timeTo.type = "time";
+        timeTo.id = "termTimeTo";
+        timeTo.style.width = "80%";
+        timeTo.style.margin = "5px 0";
+        popupContent.appendChild(timeTo);
+
+        // Weitere Informationen
+        const additionalInfo = document.createElement("textarea");
+        additionalInfo.id = "termInfo";
+        additionalInfo.placeholder = "Weitere Informationen";
+        additionalInfo.style.width = "80%";
+        additionalInfo.style.margin = "5px 0";
+        popupContent.appendChild(additionalInfo);
+
+        // Speichern Button
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Speichern";
+        saveButton.style.margin = "10px 5px";
+        saveButton.onclick = function () {
+          const title = document.getElementById("termTitle").value;
+          const dateFrom = document.getElementById("termDateFrom").value;
+          const dateTo = document.getElementById("termDateTo").value;
+          let creatorId = document.getElementById("termUserId").value;
+
+          // If a regular user is creating under "Allgemeine Termine", set creatorId to "003"
+          const currentUser = users.find(u => u.id === localStorage.getItem("loggedInUser"));
+          if (currentUser.role === "user" && creatorId === "003") {
+            creatorId = "003";
+          }
+
+          const newTerm = {
+            id: generateUniqueId(),
+            title: title,
+            dateFrom: dateFrom,
+            dateTo: dateTo,
+            creatorId: creatorId,
+          };
+
+          terms.push(newTerm);
+          localStorage.setItem("terms", JSON.stringify(terms));
+          closeCreateTermPopup();
+          setView(currentView);
+        };
+        popupContent.appendChild(saveButton);
+
+        // Abbrechen Button
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Abbrechen";
+        cancelButton.style.margin = "10px 5px";
+        cancelButton.onclick = function () {
+          document.getElementById("bookTermPopup").remove();
+        };
+        popupContent.appendChild(cancelButton);
+
+        bookPopup.appendChild(popupContent);
+        document.body.appendChild(bookPopup);
+      }
+
+      // 1. Update renderUserAppointments to include "Allgemeine Termine" for all users
+      function renderUserAppointments(userId) {
+        const calendarTable = document
+          .getElementById("calendarTable")
+          .getElementsByTagName("tbody")[0];
+        
+        // Clear existing events
+        const eventElements = document.querySelectorAll(".calendar-event");
+        eventElements.forEach(el => el.remove());
+
+        // For admins, show selected user's terms plus "Allgemeine Termine"
+        // For regular users, show their own terms plus "Allgemeine Termine"
+        const userTerms = terms.filter(term => term.creatorId === userId || term.creatorId === "003");
+
+        userTerms.forEach(term => {
+          const termDate = new Date(term.dateFrom);
+          const day = termDate.getDate();
+          const rows = calendarTable.getElementsByTagName("tr");
+          for (let row of rows) {
+            const cells = row.getElementsByTagName("td");
+            for (let cell of cells) {
+              if (parseInt(cell.textContent) === day) {
+                const eventDiv = document.createElement("div");
+                eventDiv.className = "calendar-event";
+                eventDiv.textContent = `${termDate.getHours()}:${String(termDate.getMinutes()).padStart(2, '0')} ${term.title}`;
+
+                // Assign colors based on creator
+                if (term.creatorId === "001") { // Admin
+                  eventDiv.style.backgroundColor = "#f44336"; // Red
+                } else if (term.creatorId === "002") { // Regular user
+                  eventDiv.style.backgroundColor = "#4caf50"; // Green
+                } else if (term.creatorId === "003") { // Allgemeine Termine
+                  eventDiv.style.backgroundColor = "#ff9800"; // Orange
+                }
+
+                eventDiv.style.color = "#fff";
+                eventDiv.style.padding = "2px";
+                eventDiv.style.marginTop = "2px";
+                eventDiv.style.borderRadius = "2px";
+                eventDiv.style.cursor = "pointer";
+                eventDiv.onclick = function () {
+                  openTermInfoPopup(term.id, term.creatorId);
+                };
+                cell.appendChild(eventDiv);
+              }
+            }
+          }
+        });
+
+        // Show create button based on role and view
+        const currentUser = users.find(u => u.id === localStorage.getItem("loggedInUser"));
+        if (currentUser.role === "admin") {
+          const createButton = document.createElement("button");
+          createButton.textContent = "Neuen Termin erstellen";
+          createButton.onclick = () => openCreateTermPopup(userId);
+          document.getElementById("calendarContainer").appendChild(createButton);
+        }
+
+        if (currentUser.role === "user" && userId === "003") {
+          const createButton = document.createElement("button");
+          createButton.textContent = "Neuen Termin erstellen";
+          createButton.onclick = () => openCreateTermPopup("003");
+          document.getElementById("calendarContainer").appendChild(createButton);
+        }
+      }
+
+      // 2. Ensure that regular users can create appointments under "Allgemeine Termine"
+      function openCreateTermPopup(userId = null) {
+        const popup = document.getElementById("createTermPopup");
+        popup.style.display = "block";
+
+        const termUserId = userId || localStorage.getItem("loggedInUser");
+        document.getElementById("termUserId").value = termUserId;
+
+        const saveButton = document.getElementById("saveTermButton");
+        saveButton.onclick = function () {
+          const title = document.getElementById("termTitle").value;
+          const dateFrom = document.getElementById("termDateFrom").value;
+          const dateTo = document.getElementById("termDateTo").value;
+          let creatorId = document.getElementById("termUserId").value;
+
+          // If a regular user is creating under "Allgemeine Termine", set creatorId to "003"
+          const currentUser = users.find(u => u.id === localStorage.getItem("loggedInUser"));
+          if (currentUser.role === "user" && creatorId === "003") {
+            creatorId = "003";
+          }
+
+          const newTerm = {
+            id: generateUniqueId(),
+            title: title,
+            dateFrom: dateFrom,
+            dateTo: dateTo,
+            creatorId: creatorId,
+          };
+
+          terms.push(newTerm);
+          localStorage.setItem("terms", JSON.stringify(terms));
+          closeCreateTermPopup();
+          setView(currentView);
+        };
+      }
+
+      // 3. Modify selectUserView to handle "general" view for regular users
+      function selectUserView(viewType) {
+        if (viewType === 'self') {
+          setView('selfView');
+          renderUserAppointments(localStorage.getItem("loggedInUser"));
+        } else if (viewType === 'general') {
+          setView('general');
+          renderUserAppointments("003"); // Render "Allgemeine Termine"
+        }
+      }
+
+      // Modify openCreateTermPopup to handle creatorId correctly
+      function openCreateTermPopup(userId = null) {
+        const popup = document.getElementById("createTermPopup");
+        popup.style.display = "block";
+
+        // Set user context
+        const termUserId = userId || localStorage.getItem("loggedInUser");
+        document.getElementById("termUserId").value = termUserId;
+
+        const saveButton = document.getElementById("saveTermButton");
+        saveButton.onclick = function () {
+          const title = document.getElementById("termTitle").value;
+          const dateFrom = document.getElementById("termDateFrom").value;
+          const dateTo = document.getElementById("termDateTo").value;
+          let creatorId = document.getElementById("termUserId").value;
+
+          // If creating under "Allgemeine Termine", ensure creatorId is "003"
+          const currentUser = users.find(u => u.id === localStorage.getItem("loggedInUser"));
+          if (creatorId === "003" && currentUser.role === "user") {
+            creatorId = "003";
+          } else if (creatorId === "003" && currentUser.role === "admin") {
+            // Admin can choose to create under "Allgemeine Termine" or their own
+            // Optionally, add a dropdown to select
+          }
+
+          const newTerm = {
+            id: generateUniqueId(),
+            title: title,
+            dateFrom: dateFrom,
+            dateTo: dateTo,
+            creatorId: creatorId,
+          };
+
+          terms.push(newTerm);
+          localStorage.setItem("terms", JSON.stringify(terms));
+          closeCreateTermPopup();
+          setView(currentView);
+        };
       }
     </script>
   </body>
