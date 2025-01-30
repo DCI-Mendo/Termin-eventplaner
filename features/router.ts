@@ -68,7 +68,6 @@ export function initializePageLogic() {
       eventRenderer.initializeEvents();
     }
   }
-  // Add more conditions for other pages as needed
 }
 
 export function setupNavigation() {

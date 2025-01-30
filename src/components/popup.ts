@@ -5,26 +5,29 @@ function openPopup(eventId: string) {
   const eventForm = document.getElementById("eventForm") as HTMLFormElement;
 
   // Populate the form with event data
-  const event = eventsList.find((event) => event.id === eventId);
-  if (event) {
+  const eventDetails = eventsList.find((event) => event.id === eventId);
+  if (eventDetails) {
     (eventForm.elements.namedItem("title") as HTMLInputElement).value =
-      event.title;
+      eventDetails.title;
     (eventForm.elements.namedItem("description") as HTMLTextAreaElement).value =
-      event.description;
+      eventDetails.description;
     (eventForm.elements.namedItem("category") as HTMLInputElement).value =
-      event.category;
+      eventDetails.category;
     (eventForm.elements.namedItem("price") as HTMLInputElement).value =
-      event.price.toString();
+      eventDetails.price.toString();
     (eventForm.elements.namedItem("duration") as HTMLInputElement).value =
-      event.duration;
+      eventDetails.duration;
     (eventForm.elements.namedItem("capacity") as HTMLInputElement).value =
-      event.capacity.toString();
+      eventDetails.capacity.toString();
   }
 
   eventPopup.classList.remove("hidden");
 }
 
-function closePopup() {
+function closePopup(event: Event) {
+  console.log("Event type:", event.type);
+  console.log("Event target:", event.target);
+
   const eventPopup = document.getElementById("eventPopup") as HTMLDivElement;
   const eventForm = document.getElementById("eventForm") as HTMLFormElement;
   eventPopup.classList.add("hidden");
