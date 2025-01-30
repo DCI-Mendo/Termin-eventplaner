@@ -192,9 +192,6 @@
     <h1 id="viewTitle">Monatsansicht</h1>
 
     <div id="calendarContainer">
-      <button id="terminBuchenButton" onclick="openCreateTermPopup()">
-        Termin buchen
-      </button>
       
       <!-- Rest of the calendar UI -->
       
@@ -292,6 +289,50 @@
       <input type="hidden" id="termUserId" name="termUserId" />
       <button id="saveTermButton">Speichern</button>
       <button onclick="closeCreateTermPopup()">Abbrechen</button>
+    </div>
+
+    <!-- Create Term Popup -->
+    <div id="createTermPopup" style="display:none;">
+      <h2>Neuen Termin erstellen</h2>
+      <label for="termTitle">Titel:</label>
+      <input type="text" id="termTitle" name="termTitle" required />
+      <br />
+      <label for="termDateFrom">Von:</label>
+      <input type="datetime-local" id="termDateFrom" name="termDateFrom" required />
+      <br />
+      <label for="termDateTo">Bis:</label>
+      <input type="datetime-local" id="termDateTo" name="termDateTo" required />
+      <br />
+      <input type="hidden" id="termUserId" name="termUserId" />
+      <button id="saveTermButton">Speichern</button>
+      <button onclick="closeCreateTermPopup()">Abbrechen</button>
+    </div>
+
+    <!-- Term Info Popup -->
+    <div id="termInfoPopup" style="display:none;">
+      <h2 id="termInfoTitle"></h2>
+      <p>Von: <span id="termInfoDateFrom"></span></p>
+      <p>Bis: <span id="termInfoDateTo"></span></p>
+      <button id="editTermButton">Bearbeiten</button>
+      <button id="deleteTermButton">Löschen</button>
+      <button onclick="closeTermInfoPopup()">Schließen</button>
+    </div>
+
+    <!-- Edit Term Popup -->
+    <div id="editTermPopup" style="display:none;">
+      <h2>Termin bearbeiten</h2>
+      <label for="editTermTitle">Titel:</label>
+      <input type="text" id="editTermTitle" name="editTermTitle" required />
+      <br />
+      <label for="editTermDateFrom">Von:</label>
+      <input type="datetime-local" id="editTermDateFrom" name="editTermDateFrom" required />
+      <br />
+      <label for="editTermDateTo">Bis:</label>
+      <input type="datetime-local" id="editTermDateTo" name="editTermDateTo" required />
+      <br />
+      <input type="hidden" id="editTermUserId" name="editTermUserId" />
+      <button id="saveEditTermButton">Speichern</button>
+      <button onclick="closeEditTermPopup()">Abbrechen</button>
     </div>
 
     <script>
@@ -2361,15 +2402,11 @@
         // Show create button based on role and view
         const currentUser = users.find(u => u.id === localStorage.getItem("loggedInUser"));
         if (currentUser.role === "admin") {
-          const createButton = document.createElement("button");
-          createButton.textContent = "Neuen Termin erstellen";
           createButton.onclick = () => openCreateTermPopup(userId);
           document.getElementById("calendarContainer").appendChild(createButton);
         }
 
         if (currentUser.role === "user" && userId === "003") {
-          const createButton = document.createElement("button");
-          createButton.textContent = "Neuen Termin erstellen";
           createButton.onclick = () => openCreateTermPopup("003");
           document.getElementById("calendarContainer").appendChild(createButton);
         }
@@ -2461,6 +2498,82 @@
           setView(currentView);
         };
       }
+
+      function openTermInfoPopup(termId, creatorId) {
+        const term = terms.find(t => t.id === termId);
+        if (!term) return;
+      
+        const popup = document.getElementById("termInfoPopup");
+        popup.style.display = "block";
+      
+        document.getElementById("termInfoTitle").textContent = term.title;
+        document.getElementById("termInfoDateFrom").textContent = new Date(term.dateFrom).toLocaleString();
+        document.getElementById("termInfoDateTo").textContent = new Date(term.dateTo).toLocaleString();
+      
+        const editButton = document.getElementById("editTermButton");
+        const deleteButton = document.getElementById("deleteTermButton");
+      
+        editButton.onclick = function () {
+          openEditTermPopup(termId);
+        };
+      
+        deleteButton.onclick = function () {
+          deleteTerm(termId);
+        };
+      }
+      
+      function openEditTermPopup(termId) {
+        const term = terms.find(t => t.id === termId);
+        if (!term) return;
+      
+        const popup = document.getElementById("editTermPopup");
+        popup.style.display = "block";
+      
+        document.getElementById("editTermTitle").value = term.title;
+        document.getElementById("editTermDateFrom").value = term.dateFrom;
+        document.getElementById("editTermDateTo").value = term.dateTo;
+        document.getElementById("editTermUserId").value = term.creatorId;
+      
+        const saveButton = document.getElementById("saveEditTermButton");
+        saveButton.onclick = function () {
+          const title = document.getElementById("editTermTitle").value;
+          const dateFrom = document.getElementById("editTermDateFrom").value;
+          const dateTo = document.getElementById("editTermDateTo").value;
+          const creatorId = document.getElementById("editTermUserId").value;
+      
+          if (!title || !dateFrom || !dateTo) {
+            alert("Bitte füllen Sie alle Felder aus.");
+            return;
+          }
+      
+          term.title = title;
+          term.dateFrom = dateFrom;
+          term.dateTo = dateTo;
+          term.creatorId = creatorId;
+      
+          localStorage.setItem("terms", JSON.stringify(terms));
+          closeEditTermPopup();
+          setView(currentView);
+        };
+      }
+      
+      function closeEditTermPopup() {
+        const popup = document.getElementById("editTermPopup");
+        popup.style.display = "none";
+      }
+      
+      function deleteTerm(termId) {
+        terms = terms.filter(t => t.id !== termId);
+        localStorage.setItem("terms", JSON.stringify(terms));
+        closeTermInfoPopup();
+        setView(currentView);
+      }
+      
+      function closeTermInfoPopup() {
+        const popup = document.getElementById("termInfoPopup");
+        popup.style.display = "none";
+      }
+      
     </script>
   </body>
 </html>
