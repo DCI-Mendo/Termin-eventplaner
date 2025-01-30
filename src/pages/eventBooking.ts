@@ -60,6 +60,9 @@ export class EventRenderer {
     this.eventsContainer = document.getElementById("eventsContainer");
     this.filterContainer = document.getElementById("filterButtons");
 
+    console.log("eventsContainer:", this.eventsContainer);
+    console.log("filterContainer:", this.filterContainer);
+
     if (this.eventsContainer && this.filterContainer) {
       this.initializeEvents();
       this.createCategoryFilters();
