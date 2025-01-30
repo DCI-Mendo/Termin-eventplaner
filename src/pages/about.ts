@@ -28,7 +28,7 @@ const teamMembers: TeamMember[] = [
 ];
 
 // Render team member cards
-function renderTeam() {
+export function renderTeam() {
   const teamSection = document.getElementById("teamSection") as HTMLElement;
   if (teamSection) {
     teamSection.innerHTML = teamMembers
