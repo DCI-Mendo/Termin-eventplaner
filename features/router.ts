@@ -2,6 +2,7 @@ import { routes } from "./routes";
 import { initContactPage } from "../src/pages/contact";
 import { closePopup, openPopup } from "../src/components/popup"; // Import openPopup
 import { EventRenderer } from "../src/pages/eventBooking";
+
 import notFoundPage from "../src/pages/notFound";
 import { renderTeam } from "../src/pages/about"; // Importiere renderTeam
 
