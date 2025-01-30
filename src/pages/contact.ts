@@ -34,7 +34,6 @@ export function initContactPage() {
       return;
     }
 
-    // Display success message and reset form
     displayMessage(
       `Thank you, ${name}! Your message has been sent.`,
       "success",

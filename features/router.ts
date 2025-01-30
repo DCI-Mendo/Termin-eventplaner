@@ -1,15 +1,8 @@
-import { initContactPage } from "./pages/contact";
-import { openPopup, closePopup } from "./components/popup";
-import { EventRenderer } from "./pages/eventsBooking"; // Import EventRenderer
-import { initAboutPage } from "./pages/about"; // Import initAboutPage
-
-const routes: { [key: string]: string } = {
-  "/": "home.html",
-  "/calendar": "calendar.html",
-  "/services": "eventsBooking.html",
-  "/about": "about.html",
-  "/contact": "contact.html",
-};
+import { routes } from "./routes";
+import { initContactPage } from "../src/pages/contact";
+import { openPopup, closePopup } from "../src/components/popup";
+import { EventRenderer } from "../src/pages/eventBooking";
+import notFoundPage from "../src/pages/notFound";
 
 export function navigateTo(url: string) {
   history.pushState(null, "", url);
@@ -17,7 +10,10 @@ export function navigateTo(url: string) {
 }
 
 function loadContent(url: string) {
-  const path = routes[url] || "404.html";
+  const route = routes.find((r) =>
+    new RegExp(`^${r.path.replace(/:\w+/g, "\\w+")}$`).test(url),
+  );
+  const path = route ? route.page : "404.html"; // Handle dynamic routes
   fetch(`/src/pages/${path}`)
     .then((response) => {
       if (!response.ok) {
@@ -36,16 +32,23 @@ function loadContent(url: string) {
         console.error("App element not found");
       }
     })
-    .catch((error) => console.error("Error loading content:", error));
+    .catch((error) => {
+      console.error("Error loading content:", error);
+      const appElement = document.getElementById("app");
+      if (appElement) {
+        appElement.innerHTML = notFoundPage();
+      }
+    });
 }
 
 export function initializePageLogic() {
   const currentPage = window.location.pathname;
+  console.log(`Current page: ${currentPage}`);
 
-  if (currentPage === "/contact") {
+  if (currentPage.startsWith("/contact")) {
     // Initialize contact form logic
     initContactPage();
-  } else if (currentPage === "/calendar") {
+  } else if (currentPage.startsWith("/calendar")) {
     // Initialize calendar logic
     document
       .getElementById("addEventButton")
@@ -53,15 +56,18 @@ export function initializePageLogic() {
     document
       .getElementById("cancelButton")
       ?.addEventListener("click", closePopup);
-  } else if (currentPage === "/services") {
+  } else if (currentPage.startsWith("/services")) {
     // Initialize events booking logic
+    console.log("Initializing EventRenderer for eventsBooking page");
     const eventRenderer = new EventRenderer();
-    eventRenderer.initializeEvents();
-  } else if (currentPage === "/about") {
-    // Initialize About Us page logic
-    initAboutPage();
+    const pathParts = currentPage.split("/");
+    if (pathParts.length === 3) {
+      const eventId = pathParts[2];
+      eventRenderer.renderEventDetails(eventId);
+    } else {
+      eventRenderer.initializeEvents();
+    }
   }
-  // Add more conditions for other pages as needed
 }
 
 export function setupNavigation() {
