@@ -34,6 +34,8 @@ function loadContent(url: string) {
     .catch((error) => console.error("Error loading content:", error));
 }
 
+// ...existing code...
+
 export function initializePageLogic() {
   const currentPage = window.location.pathname;
 
@@ -60,6 +62,8 @@ export function initializePageLogic() {
   }
   // Add more conditions for other pages as needed
 }
+
+// ...existing code...
 
 export function setupNavigation() {
   document.querySelectorAll("nav a").forEach((link) => {

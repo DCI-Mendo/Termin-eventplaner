@@ -88,6 +88,40 @@ export class EventRenderer {
       //   console.error("eventsContainer element not found");
     }
   }
+  // Render the details of a specific event
+  public renderEventDetails(eventId: string) {
+    const event = this.eventService
+      .getAllEvents()
+      .find((event) => event.id === eventId);
+
+    if (event && this.eventsContainer) {
+      this.eventsContainer.innerHTML = `
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="p-6">
+            <h2 class="text-2xl font-bold text-blue-600">${event.title}</h2>
+            <p class="text-gray-600 mb-4">${event.description}</p>
+            <p class="font-semibold">Price: ${event.price} €</p>
+            <p class="text-sm text-gray-500">Duration: ${event.duration}</p>
+            <p class="text-sm text-gray-500">Category: ${event.category}</p>
+            <p class="text-sm text-gray-500">Details: ${event.details}</p>
+            <div class="flex justify-between items-center mt-4">
+              <button class="booking-button bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition" 
+                data-id="${event.id}" ${event.capacity === 0 ? "disabled" : ""}>
+                ${event.capacity === 0 ? "Sold Out" : "Book Now"}
+              </button>
+              <button class="favorite-button ${event.isFavorite ? "text-red-500" : "text-gray-500"} hover:text-red-600" data-id="${event.id}">
+                <i class="fas fa-heart"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      this.attachFavoriteListeners(); // Attach functionality to the Favorite buttons
+      this.attachBookingListeners(); // Attach functionality to the Booking buttons
+    } else {
+      console.error("Event not found or eventsContainer element not found");
+    }
+  }
 
   // Create an event card for each event
   private createEventCard(event: Event): string {
