@@ -64,10 +64,11 @@ export class EventRenderer {
       this.initializeEvents();
       this.createCategoryFilters();
     } else {
-      console.error("Required elements not found");
+      //   console.error("Required elements not found");
     }
   }
 
+  // Initialize events based on the selected category
   public initializeEvents(category?: string) {
     const events = category
       ? this.eventService.getEventsByCategory(category)
@@ -75,15 +76,20 @@ export class EventRenderer {
     // Ensure eventsContainer is not null before setting innerHTML
     if (this.eventsContainer) {
       this.eventsContainer.innerHTML = events
-        .map((event) => this.createEventCard(event))
+        .map(
+          (event) =>
+            `<a href="event-details.html?id=${event.id}" class="event-card">
+              ${this.createEventCard(event)}</a>`,
+        )
         .join("");
-      this.attachBookingListeners(); // Attach functionality to the Booking buttons
       this.attachFavoriteListeners(); // Attach functionality to the Favorite buttons
+      this.attachBookingListeners(); // Attach functionality to the Booking buttons
     } else {
-      console.error("eventsContainer element not found");
+      //   console.error("eventsContainer element not found");
     }
   }
 
+  // Create an event card for each event
   private createEventCard(event: Event): string {
     const isSoldOut = event.capacity === 0;
 
@@ -124,6 +130,7 @@ export class EventRenderer {
     `;
   }
 
+  // Create category filters
   private createCategoryFilters() {
     const categories = this.eventService.getUniqueCategories();
 
@@ -154,6 +161,7 @@ export class EventRenderer {
     }
   }
 
+  // Attach filter listeners to filter buttons
   private attachFilterListeners() {
     const filterButtons = document.querySelectorAll(".category-filter");
 
@@ -175,6 +183,7 @@ export class EventRenderer {
     });
   }
 
+  // Attach booking listeners to booking buttons
   private attachBookingListeners() {
     const bookingButtons = document.querySelectorAll(".booking-button");
 
@@ -193,6 +202,7 @@ export class EventRenderer {
     });
   }
 
+  // Attach favorite listeners to favorite buttons
   private attachFavoriteListeners() {
     const favoriteButtons = document.querySelectorAll(".favorite-button");
 
@@ -206,6 +216,7 @@ export class EventRenderer {
   }
 }
 
+// Initialize the EventRenderer when the DOM content is loaded
 document.addEventListener("DOMContentLoaded", () => {
   const eventRenderer = new EventRenderer();
   eventRenderer.initializeEvents();
