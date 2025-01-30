@@ -1,4 +1,5 @@
 import { eventsList } from "../data/events"; // Import the eventsList from events.ts
+import { navigateTo } from ""; // Import the navigateTo function from router.ts
 
 interface Event {
   id: string;
@@ -82,15 +83,29 @@ export class EventRenderer {
       this.eventsContainer.innerHTML = events
         .map(
           (event) =>
-            `<a href="event-details.html?id=${event.id}" class="event-card">
-              ${this.createEventCard(event)}</a>`,
+            `<div class="event-card" data-id="${event.id}">
+              ${this.createEventCard(event)}
+            </div>`,
         )
         .join("");
       this.attachFavoriteListeners(); // Attach functionality to the Favorite buttons
       this.attachBookingListeners(); // Attach functionality to the Booking buttons
+      this.attachEventCardListeners(); // Attach functionality to the Event cards
     } else {
       console.error("eventsContainer element not found");
     }
+  }
+
+  // Attach event listeners to event cards
+  private attachEventCardListeners() {
+    const eventCards = document.querySelectorAll(".event-card");
+
+    eventCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const eventId = card.getAttribute("data-id");
+        navigateTo(`/services/${eventId}`);
+      });
+    });
   }
 
   // Render the details of a specific event

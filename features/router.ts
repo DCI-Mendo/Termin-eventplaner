@@ -53,12 +53,13 @@ export function initializePageLogic() {
     // Initialize events booking logic
     console.log("Initializing EventRenderer for eventsBooking page");
     const eventRenderer = new EventRenderer();
-    eventRenderer.initializeEvents();
-  } else if (currentPage.startsWith("/events/")) {
-    // Initialize event details logic
-    const eventId = currentPage.split("/")[2];
-    const eventRenderer = new EventRenderer();
-    eventRenderer.renderEventDetails(eventId);
+    const pathParts = currentPage.split("/");
+    if (pathParts.length === 3) {
+      const eventId = pathParts[2];
+      eventRenderer.renderEventDetails(eventId);
+    } else {
+      eventRenderer.initializeEvents();
+    }
   }
   // Add more conditions for other pages as needed
 }
