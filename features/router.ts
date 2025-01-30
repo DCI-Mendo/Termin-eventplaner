@@ -1,9 +1,10 @@
 import { routes } from "./routes";
 import { initContactPage } from "../src/pages/contact";
-import { openPopup, closePopup } from "../src/components/popup";
+import { closePopup, openPopup } from "../src/components/popup"; // Import openPopup
 import { EventRenderer } from "../src/pages/eventBooking";
 
 import notFoundPage from "../src/pages/notFound";
+import { renderTeam } from "../src/pages/about"; // Importiere renderTeam
 
 export function navigateTo(url: string) {
   history.pushState(null, "", url);
@@ -68,6 +69,9 @@ export function initializePageLogic() {
     } else {
       eventRenderer.initializeEvents();
     }
+  } else if (currentPage.startsWith("/about")) {
+    // Initialize about page logic
+    renderTeam(); // Rufe renderTeam auf, um die Teamkarten zu rendern
   }
 }
 

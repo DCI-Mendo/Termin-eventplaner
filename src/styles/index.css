@@ -1,3 +1,39 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes cardHover {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.team-card {
+  background-color: #f9fafb;
+  border-radius: 1rem;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+
+.team-card:hover {
+  animation: cardHover 0.3s forwards;
+}
+
+.team-card img {
+  border-radius: 50%;
+  border: 2px solid #4a5568;
+}
+
+.team-card h3 {
+  color: #2d3748;
+}
+
+.team-card p {
+  color: #718096;
+}
