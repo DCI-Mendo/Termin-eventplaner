@@ -1,5 +1,6 @@
 import { eventsList } from "../data/events"; // Import the eventsList from events.ts
 import { navigateTo } from "../../features/router"; // Import the navigateTo function from router.ts
+import { openPopup } from "../components/popup"; // Import the popup function
 
 interface Event {
   id: string;
@@ -253,15 +254,13 @@ export class EventRenderer {
     const bookingButtons = document.querySelectorAll(".booking-button");
 
     bookingButtons.forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener("click", (event) => {
+        event.stopPropagation(); // Prevent the card click event
         const eventId = button.getAttribute("data-id");
-        const success = this.eventService.bookEvent(eventId!);
-
-        if (success) {
-          alert("Booking successful!");
-          this.initializeEvents(); // Re-render events to update capacities
+        if (eventId) {
+          openPopup(eventId);
         } else {
-          alert("Booking failed. Event is sold out.");
+          console.error("Event ID not found");
         }
       });
     });
