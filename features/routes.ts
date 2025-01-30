@@ -1,4 +1,4 @@
-const routes: { path: string; page: string }[] = [
+const routes = [
   { path: "/", page: "home.html" },
   { path: "/calendar", page: "calendar.html" },
   { path: "/services", page: "eventsBooking.html" },

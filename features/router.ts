@@ -9,7 +9,7 @@ export function navigateTo(url: string) {
 }
 
 function loadContent(url: string) {
-  const route = routes.find((r: { path: string; page: string }) =>
+  const route = routes.find((r) =>
     new RegExp(`^${r.path.replace(/:\w+/g, "\\w+")}$`).test(url),
   );
   const path = route ? route.page : "404.html"; // Handle dynamic routes
@@ -49,7 +49,7 @@ export function initializePageLogic() {
     document
       .getElementById("cancelButton")
       ?.addEventListener("click", closePopup);
-  } else if (currentPage.startsWith("/eventsBooking")) {
+  } else if (currentPage.startsWith("/services")) {
     // Initialize events booking logic
     console.log("Initializing EventRenderer for eventsBooking page");
     const eventRenderer = new EventRenderer();
