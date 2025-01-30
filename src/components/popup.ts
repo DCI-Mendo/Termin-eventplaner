@@ -8,27 +8,39 @@ function openPopup(event: Event) {
     return;
   }
 
-  const eventPopup = document.getElementById("eventPopup") as HTMLDivElement;
-  const eventForm = document.getElementById("eventForm") as HTMLFormElement;
+  fetch("/src/components/popup.html")
+    .then((response) => response.text())
+    .then((html) => {
+      document.body.insertAdjacentHTML("beforeend", html);
+      const eventPopup = document.getElementById(
+        "eventPopup",
+      ) as HTMLDivElement;
+      const eventForm = document.getElementById("eventForm") as HTMLFormElement;
 
-  // Populate the form with event data
-  const eventDetails = eventsList.find((event) => event.id === eventId);
-  if (eventDetails) {
-    (eventForm.elements.namedItem("title") as HTMLInputElement).value =
-      eventDetails.title;
-    (eventForm.elements.namedItem("description") as HTMLTextAreaElement).value =
-      eventDetails.description;
-    (eventForm.elements.namedItem("category") as HTMLInputElement).value =
-      eventDetails.category;
-    (eventForm.elements.namedItem("price") as HTMLInputElement).value =
-      eventDetails.price.toString();
-    (eventForm.elements.namedItem("duration") as HTMLInputElement).value =
-      eventDetails.duration;
-    (eventForm.elements.namedItem("capacity") as HTMLInputElement).value =
-      eventDetails.capacity.toString();
-  }
+      // Populate the form with event data
+      const eventDetails = eventsList.find((event) => event.id === eventId);
+      if (eventDetails) {
+        (eventForm.elements.namedItem("title") as HTMLInputElement).value =
+          eventDetails.title;
+        (
+          eventForm.elements.namedItem("description") as HTMLTextAreaElement
+        ).value = eventDetails.description;
+        (eventForm.elements.namedItem("category") as HTMLInputElement).value =
+          eventDetails.category;
+        (eventForm.elements.namedItem("price") as HTMLInputElement).value =
+          eventDetails.price.toString();
+        (eventForm.elements.namedItem("duration") as HTMLInputElement).value =
+          eventDetails.duration;
+        (eventForm.elements.namedItem("capacity") as HTMLInputElement).value =
+          eventDetails.capacity.toString();
+      }
 
-  eventPopup.classList.remove("hidden");
+      eventPopup.classList.remove("hidden");
+
+      document
+        .getElementById("cancelButton")
+        ?.addEventListener("click", closePopup);
+    });
 }
 
 function closePopup(event: Event) {
