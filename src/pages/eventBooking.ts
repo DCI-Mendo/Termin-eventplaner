@@ -256,12 +256,7 @@ export class EventRenderer {
     bookingButtons.forEach((button) => {
       button.addEventListener("click", (event) => {
         event.stopPropagation(); // Prevent the card click event
-        const eventId = button.getAttribute("data-id");
-        if (eventId) {
-          openPopup(eventId);
-        } else {
-          console.error("Event ID not found");
-        }
+        openPopup(event); // Call openPopup with the event object
       });
     });
   }

@@ -1,6 +1,13 @@
 import { eventsList } from "../data/events";
 
-function openPopup(eventId: string) {
+function openPopup(event: Event) {
+  const target = event.target as HTMLElement;
+  const eventId = target.getAttribute("data-id");
+  if (!eventId) {
+    console.error("Event ID not found");
+    return;
+  }
+
   const eventPopup = document.getElementById("eventPopup") as HTMLDivElement;
   const eventForm = document.getElementById("eventForm") as HTMLFormElement;
 
