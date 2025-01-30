@@ -2,6 +2,7 @@ import { routes } from "./routes";
 import { initContactPage } from "../src/pages/contact";
 import { openPopup, closePopup } from "../src/components/popup";
 import { EventRenderer } from "../src/pages/eventBooking";
+
 import notFoundPage from "../src/pages/notFound";
 
 export function navigateTo(url: string) {
