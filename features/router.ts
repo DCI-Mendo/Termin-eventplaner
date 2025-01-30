@@ -34,10 +34,9 @@ function loadContent(url: string) {
     .catch((error) => console.error("Error loading content:", error));
 }
 
-// ...existing code...
-
 export function initializePageLogic() {
   const currentPage = window.location.pathname;
+  console.log(`Current page: ${currentPage}`);
 
   if (currentPage.startsWith("/contact")) {
     // Initialize contact form logic
@@ -52,6 +51,7 @@ export function initializePageLogic() {
       ?.addEventListener("click", closePopup);
   } else if (currentPage.startsWith("/eventsBooking")) {
     // Initialize events booking logic
+    console.log("Initializing EventRenderer for eventsBooking page");
     const eventRenderer = new EventRenderer();
     eventRenderer.initializeEvents();
   } else if (currentPage.startsWith("/events/")) {
@@ -62,8 +62,6 @@ export function initializePageLogic() {
   }
   // Add more conditions for other pages as needed
 }
-
-// ...existing code...
 
 export function setupNavigation() {
   document.querySelectorAll("nav a").forEach((link) => {

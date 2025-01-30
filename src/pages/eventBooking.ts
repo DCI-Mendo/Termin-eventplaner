@@ -64,12 +64,13 @@ export class EventRenderer {
       this.initializeEvents();
       this.createCategoryFilters();
     } else {
-      //   console.error("Required elements not found");
+      console.error("Required elements not found");
     }
   }
 
   // Initialize events based on the selected category
   public initializeEvents(category?: string) {
+    console.log("Initializing events");
     const events = category
       ? this.eventService.getEventsByCategory(category)
       : this.eventService.getAllEvents();
@@ -85,9 +86,10 @@ export class EventRenderer {
       this.attachFavoriteListeners(); // Attach functionality to the Favorite buttons
       this.attachBookingListeners(); // Attach functionality to the Booking buttons
     } else {
-      //   console.error("eventsContainer element not found");
+      console.error("eventsContainer element not found");
     }
   }
+
   // Render the details of a specific event
   public renderEventDetails(eventId: string) {
     const event = this.eventService
@@ -249,9 +251,3 @@ export class EventRenderer {
     });
   }
 }
-
-// Initialize the EventRenderer when the DOM content is loaded
-document.addEventListener("DOMContentLoaded", () => {
-  const eventRenderer = new EventRenderer();
-  eventRenderer.initializeEvents();
-});
