@@ -2,7 +2,7 @@ import "./styles/index.css";
 import { loadHeader } from "./components/header";
 import { navigateTo } from "../features/router";
 import { closePopup } from "./components/popup";
-import { FooterManager } from "./components/footer"; // Import FooterManager
+import { FooterManager } from "./components/footer"; 
 
 
 const initApp = () => {
@@ -30,7 +30,7 @@ const loadFooter = () => {
       const footerElement = document.getElementById("footer");
       if (footerElement) {
         footerElement.innerHTML = data;
-        new FooterManager(); // Initialize FooterManager after loading the footer
+        new FooterManager();
       }
     })
     .catch((error) => console.error("Error loading footer:", error));
