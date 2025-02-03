@@ -1,0 +1,105 @@
+<nav class="bg-indigo-600 text-white shadow-lg fixed w-full z-50">
+  <div class="container mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <!-- Logo/Brand -->
+      <div class="flex items-center">
+        <a href="/" class="flex items-center space-x-2">
+          <i class="fas fa-calendar-alt text-2xl"></i>
+          <span class="font-bold text-xl">Calendar & Event Planner</span>
+        </a>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="hidden md:flex space-x-8">
+        <a href="/">Home</a>
+        <a href="/calendar">Calendar</a>
+        <a href="/services">Services</a>
+        <a href="/about">About Us</a>
+        <a href="/contact">Contact</a>
+      </div>
+
+      <!-- User Menu & Notifications -->
+      <div class="flex items-center space-x-4">
+        <!-- Notifications -->
+        <div class="relative" id="notificationContainer">
+          <button
+            id="notificationBtn"
+            class="p-2 hover:bg-indigo-700 rounded-full relative"
+          >
+            <i class="fas fa-bell"></i>
+            <span
+              id="notificationBadge"
+              class="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full w-5 h-5 items-center justify-center hidden"
+              >0</span
+            >
+          </button>
+          <div
+            id="notificationDropdown"
+            class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl hidden"
+          >
+            <div class="p-4">
+              <h3 class="text-gray-900 font-semibold mb-2">Messages</h3>
+              <div id="notificationList" class="space-y-2">
+                <!-- Notifications will be inserted here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Menu -->
+        <div class="relative" id="userMenuContainer">
+          <button
+            id="userMenuBtn"
+            class="flex items-center space-x-2 hover:bg-indigo-700 px-3 py-2 rounded-lg"
+          >
+            <i class="fas fa-user-circle"></i>
+            <span id="currentUsername">Guest</span>
+          </button>
+          <div
+            id="userDropdown"
+            class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl hidden"
+          >
+            <div class="py-1">
+              <a
+                href="#profile"
+                class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <i class="fas fa-user-cog mr-2"></i>Profile
+              </a>
+              <a
+                href="#settings"
+                class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <i class="fas fa-cog mr-2"></i>Settings
+              </a>
+              <button
+                id="logoutBtn"
+                class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden">
+        <button id="mobileMenuBtn" class="p-2 hover:bg-indigo-700 rounded-lg">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Navigation Menu -->
+  <div id="mobileMenu" class="md:hidden hidden bg-indigo-700">
+    <div class="px-2 pt-2 pb-3 space-y-1">
+      <a href="/">Home</a>
+      <a href="/calendar">Calendar</a>
+      <a href="/services">Services</a>
+      <a href="/about">About Us</a>
+      <a href="/contact">Contact</a>
+    </div>
+  </div>
+</nav>

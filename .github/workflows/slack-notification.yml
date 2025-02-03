@@ -1,0 +1,27 @@
+name: Slack Notification on Issue Closed
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  notify_issue_closed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack Notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          fields: repo,message
+          custom_payload: |
+            {
+              "attachments": [{
+                "color": "#ff4500",
+                "pretext": "An issue has been closed!",
+                "title": "Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}",
+                "text": "Issue closed by: ${{ github.event.issue.user.login }}\n\nIssue details: ${{ github.event.issue.html_url }}",
+                "footer": "Repository: ${{ github.repository }}",
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

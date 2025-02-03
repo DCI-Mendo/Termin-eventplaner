@@ -1,0 +1,101 @@
+<div
+  id="eventPopup"
+  class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center"
+>
+  <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+    <h2 class="text-2xl font-bold mb-4">Edit Event</h2>
+    <form id="eventForm">
+      <div class="mb-4">
+        <label for="eventTitle" class="block text-sm font-medium text-gray-700"
+          >Title</label
+        >
+        <input
+          type="text"
+          id="eventTitle"
+          name="title"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label
+          for="eventDescription"
+          class="block text-sm font-medium text-gray-700"
+          >Description</label
+        >
+        <textarea
+          id="eventDescription"
+          name="description"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          required
+        ></textarea>
+      </div>
+      <div class="mb-4">
+        <label
+          for="eventCategory"
+          class="block text-sm font-medium text-gray-700"
+          >Category</label
+        >
+        <input
+          type="text"
+          id="eventCategory"
+          name="category"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label for="eventPrice" class="block text-sm font-medium text-gray-700"
+          >Price (€)</label
+        >
+        <input
+          type="number"
+          id="eventPrice"
+          name="price"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label
+          for="eventDuration"
+          class="block text-sm font-medium text-gray-700"
+          >Duration</label
+        >
+        <input
+          type="text"
+          id="eventDuration"
+          name="duration"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label
+          for="eventCapacity"
+          class="block text-sm font-medium text-gray-700"
+          >Capacity</label
+        >
+        <input
+          type="number"
+          id="eventCapacity"
+          name="capacity"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          required
+        />
+      </div>
+      <div class="flex justify-end">
+        <button
+          type="button"
+          id="cancelButton"
+          class="bg-gray-500 text-white px-4 py-2 rounded mr-2"
+        >
+          Cancel
+        </button>
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
