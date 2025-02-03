@@ -1,0 +1,1006 @@
+<html><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/calendar.css">
+    <title>Calendar & Event Planner</title>
+    <meta name="theme-color" content="#4285f4">
+    </head>
+    <body>
+      <div id="login-modal" class="modal" style="display: flex;">
+        <div class="modal-content">
+          <h2>Login</h2>
+          <label for="username">Benutzername:</label>
+          <input type="text" id="username" placeholder="Benutzername">
+          <label for="password">Passwort:</label>
+          <input type="password" id="password" placeholder="Passwort">
+          <button id="login-btn">Login</button>
+          <p id="login-error" style="color: red; display: none;">Ungültiger Benutzername oder Passwort</p>
+        </div>
+      </div>
+      <script>
+        document.getElementById('login-btn').addEventListener('click', () => {
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
+          const user = persons.find(p => p.name === username && p.password === password);
+          if (user) {
+            document.getElementById('login-modal').style.display = 'none';
+            activePerson = user.id;
+            generatePersonSelectors();
+            switchView('month');
+          } else {
+            document.getElementById('login-error').style.display = 'block';
+          }
+        });
+      </script>
+      <header>
+        <h1>Termin / Event Planer</h1>
+      </header>
+      <main>
+        <button id="year-overview-btn" style="display: none;">Jahresübersicht</button>
+        <div class="person-selector">
+          <!-- Family buttons will be dynamically generated -->
+          <button class="edit-person-btn" id="open-edit-modal">✏️</button>
+        </div>
+        <div class="filter-dropdown">
+          <button id="filter-dropdown-btn">Filter</button>
+          <div id="filter-dropdown-content" class="filter-dropdown-content">
+            <h3>Filter nach Person</h3>
+            <div id="filter-options" class="filter-options">
+              <!-- Filter checkboxes will be dynamically generated -->
+            </div>
+            <button id="reset-filters">Filter zurücksetzen</button>
+          </div>
+        </div>
+        <script>
+          // Generate person selector buttons with role-based visibility
+          function generatePersonSelectors() {
+            const personContainer = document.querySelector('.person-selector');
+            if (!personContainer) return; // Prevent errors if the container is not found
+            // Remove all buttons except the edit button
+            personContainer.innerHTML = '';
+            const activePersonObj = persons.find(p => p.id === activePerson);
+            persons.forEach(person => {
+              if (activePersonObj.roll === 'admin' || person.id === activePerson || person.roll === 'termine') {
+          const btn = document.createElement('button');
+          btn.className = person.id === activePerson ? 'active' : '';
+          btn.setAttribute('data-person', person.id);
+          btn.style.backgroundColor = person.color;
+          btn.style.color = getContrastYIQ(person.color);
+          btn.innerHTML = `<span>${person.name}</span>`;
+          btn.addEventListener('click', () => {
+            if (activePersonObj.roll === 'admin' || person.id === activePerson) {
+              setActivePerson(person.id);
+            }
+          });
+          personContainer.appendChild(btn);
+              }
+            });
+            // Re-add the edit button for admin users
+            if (activePersonObj.roll === 'admin') {
+              const editBtn = document.createElement('button');
+              editBtn.className = 'edit-person-btn';
+              editBtn.id = 'open-edit-modal';
+              editBtn.textContent = '✏️';
+              personContainer.appendChild(editBtn);
+              // Re-attach the event listener to the new edit button
+              openEditModalBtn = document.getElementById('open-edit-modal');
+              if (openEditModalBtn) {
+          openEditModalBtn.addEventListener('click', () => {
+            populateEditModal();
+            editModal.style.display = 'flex';
+          });
+              }
+            }
+            // Also regenerate filter selectors
+            generateFilterSelectors();
+          }
+        </script>
+        <div class="view-selector">
+          <button data-view="day" class="view-btn">Tagesansicht</button>
+          <button data-view="week" class="view-btn">Wochenansicht</button>
+          <button data-view="month" class="view-btn active">Monatsansicht</button>
+          <button data-view="year" class="view-btn">Jahresansicht</button>
+        </div>
+        <div class="date-range-input">
+          <input type="date" id="start-date" min="2024-01-01" aria-label="Startdatum">
+          <span>bis</span>
+          <input type="date" id="end-date" min="2024-01-01" aria-label="Enddatum (optional)">
+          <button id="add-range-event">Termin hinzufügen und speichern</button>
+        </div>
+        <div class="calendar">
+          <div class="month-nav">
+            <button id="prev-month">&lt;</button>
+            <span id="current-month-year"></span>
+            <button id="next-month">&gt;</button>
+          </div>
+          <div class="weekdays">
+            <div>Mo</div>
+            <div>Di</div>
+            <div>Mi</div>
+            <div>Do</div>
+            <div>Fr</div>
+            <div>Sa</div>
+            <div>So</div>
+          </div>
+          <div class="days">
+            <!-- Die Tage werden dynamisch mit JavaScript gefüllt -->
+          </div>
+          <div class="year-view-content">
+            <div class="year-nav">
+              <button id="prev-year">&lt;</button>
+              <span id="current-year"></span>
+              <button id="next-year">&gt;</button>
+            </div>
+            <div class="year-content"></div>
+          </div>
+        </div>
+      </main>
+    
+      <!-- Edit Persons Modal -->
+      <div id="edit-modal" class="modal">
+        <div class="modal-content">
+          <span class="close-modal" id="close-edit-modal">×</span>
+          <h2>Personen bearbeiten</h2>
+          <div id="persons-list">
+            <!-- Person edit fields will be dynamically generated -->
+          </div>
+          <button class="add-person-btn" id="add-person">+ Person hinzufügen</button>
+        </div>
+      </div>
+    
+      <script>
+        // Funktion zur Berechnung des Kontrasts
+        function getContrastYIQ(hexcolor){
+            hexcolor = hexcolor.replace('#', '');
+            if (hexcolor.length === 3) {
+              hexcolor = hexcolor.split('').map(c => c + c).join('');
+            }
+            const r = parseInt(hexcolor.substr(0,2),16);
+            const g = parseInt(hexcolor.substr(2,2),16);
+            const b = parseInt(hexcolor.substr(4,2),16);
+            const yiq = ((r*299)+(g*587)+(b*114))/1000;
+            return (yiq >= 128) ? '#000000' : '#FFFFFF';
+        }
+    
+      // Initialize or load persons from localStorage
+      let persons = JSON.parse(localStorage.getItem("persons")) || [
+        { id: 1, name: "Admin", password:"admin", roll: "admin", color: "#FFC0CB" },
+        { id: 2, name: "User", password:"user", roll: "user", color: "#FF4500" },
+        { id: 6, name: "Termine", password:"termine", roll: "termine", color: "#FF69B4" },
+      ];
+    // Prompt user to change password on first login
+    function promptChangePassword(user) {
+      const newPassword = prompt(`Hallo ${user.name}, bitte ändern Sie Ihr Passwort:`);
+      if (newPassword && newPassword.trim() !== '') {
+        user.password = newPassword.trim();
+        savePersons();
+        alert('Passwort erfolgreich geändert.');
+      } else {
+        alert('Passwortänderung abgebrochen. Bitte ändern Sie Ihr Passwort beim nächsten Login.');
+      }
+    }
+
+    document.getElementById('login-btn').addEventListener('click', () => {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const user = persons.find(p => p.name === username && p.password === password);
+      if (user) {
+        if (user.password === 'user1234') {
+          promptChangePassword(user);
+        }
+        document.getElementById('login-modal').style.display = 'none';
+        activePerson = user.id;
+        generatePersonSelectors();
+        switchView('month');
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    });
+        // Save persons to localStorage
+        function savePersons() {
+          localStorage.setItem('persons', JSON.stringify(persons));
+        }
+    
+        // Save events to localStorage
+        function saveEvents() {
+          localStorage.setItem('events', JSON.stringify(events));
+        }
+    
+        // Initialize or load events from localStorage
+        let events = JSON.parse(localStorage.getItem('events')) || {};
+    
+        // Initialize filter
+        let allowedPersons = new Set(persons.map(p => p.id));
+    
+        // Generate person selector buttons
+        function generatePersonSelectors() {
+          const personContainer = document.querySelector('.person-selector');
+          if (!personContainer) return; // Prevent errors if the container is not found
+          // Remove all buttons except the edit button
+          personContainer.innerHTML = '';
+          persons.forEach(person => {
+            const btn = document.createElement('button');
+            btn.className = person.id === activePerson ? 'active' : '';
+            btn.setAttribute('data-person', person.id);
+            btn.style.backgroundColor = person.color;
+            btn.style.color = getContrastYIQ(person.color);
+            btn.innerHTML = `<span>${person.name}</span>`;
+            btn.addEventListener('click', () => setActivePerson(person.id));
+            personContainer.appendChild(btn);
+          });
+          // Re-add the edit button
+          const editBtn = document.createElement('button');
+          editBtn.className = 'edit-person-btn';
+          editBtn.id = 'open-edit-modal';
+          editBtn.textContent = '✏️';
+          personContainer.appendChild(editBtn);
+          // Re-attach the event listener to the new edit button
+          openEditModalBtn = document.getElementById('open-edit-modal');
+          if (openEditModalBtn) {
+            openEditModalBtn.addEventListener('click', () => {
+              populateEditModal();
+              editModal.style.display = 'flex';
+            });
+          }
+          // Also regenerate filter selectors
+          generateFilterSelectors();
+        }
+    
+        // Generate filter selectors
+        function generateFilterSelectors() {
+          const filterContainer = document.getElementById('filter-options');
+          if (!filterContainer) return;
+          filterContainer.innerHTML = '';
+          persons.forEach(person => {
+            const label = document.createElement('label');
+            label.className = 'filter-option';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = allowedPersons.has(person.id);
+            checkbox.value = person.id;
+            checkbox.addEventListener('change', () => {
+              if (checkbox.checked) {
+                allowedPersons.add(person.id);
+              } else {
+                allowedPersons.delete(person.id);
+              }
+              applyFilters();
+            });
+            const colorBox = document.createElement('span');
+            colorBox.style.display = 'inline-block';
+            colorBox.style.width = '12px';
+            colorBox.style.height = '12px';
+            colorBox.style.backgroundColor = person.color;
+            colorBox.style.border = '1px solid #000';
+            colorBox.style.marginRight = '5px';
+            label.appendChild(checkbox);
+            label.appendChild(colorBox);
+            label.appendChild(document.createTextNode(person.name));
+            filterContainer.appendChild(label);
+          });
+        }
+    
+        // Apply filters to events
+        function applyFilters() {
+          document.querySelectorAll('.event').forEach(eventEl => {
+            const personId = parseInt(eventEl.getAttribute('data-person'));
+            if (allowedPersons.has(personId)) {
+              eventEl.style.display = 'block';
+            } else {
+              eventEl.style.display = 'none';
+            }
+          });
+        }
+    
+        // Reset filters
+        document.getElementById('reset-filters').addEventListener('click', () => {
+          allowedPersons = new Set(persons.map(p => p.id));
+          generateFilterSelectors();
+          applyFilters();
+        });
+    
+        // Save events to localStorage
+        function saveEvents() {
+          localStorage.setItem('events', JSON.stringify(events));
+        }
+    
+        // Generate person selector buttons
+        function generatePersonSelectors() {
+          const personContainer = document.querySelector('.person-selector');
+          if (!personContainer) return; // Prevent errors if the container is not found
+          // Remove all buttons except the edit button
+          personContainer.innerHTML = '';
+          persons.forEach(person => {
+            const btn = document.createElement('button');
+            btn.className = person.id === activePerson ? 'active' : '';
+            btn.setAttribute('data-person', person.id);
+            btn.style.backgroundColor = person.color;
+            btn.style.color = getContrastYIQ(person.color);
+            btn.innerHTML = `<span>${person.name}</span>`;
+            btn.addEventListener('click', () => setActivePerson(person.id));
+            personContainer.appendChild(btn);
+          });
+          // Re-add the edit button
+          const editBtn = document.createElement('button');
+          editBtn.className = 'edit-person-btn';
+          editBtn.id = 'open-edit-modal';
+          editBtn.textContent = '✏️';
+          personContainer.appendChild(editBtn);
+          // Re-attach the event listener to the new edit button
+          openEditModalBtn = document.getElementById('open-edit-modal');
+          if (openEditModalBtn) {
+            openEditModalBtn.addEventListener('click', () => {
+              populateEditModal();
+              editModal.style.display = 'flex';
+            });
+          }
+          // Also regenerate filter selectors
+          generateFilterSelectors();
+        }
+    // Check if the user has permission to view or edit an event
+    function hasPermission(personId) {
+      const activePersonObj = persons.find(p => p.id === activePerson);
+      if (!activePersonObj) return false;
+      if (activePersonObj.roll === 'admin') return true;
+      if (activePersonObj.roll === 'user' && (personId === activePerson || personId === 6)) return true;
+      return false;
+    }
+
+    // Apply filters to events with permission check
+    function applyFilters() {
+      document.querySelectorAll('.event').forEach(eventEl => {
+      const personId = parseInt(eventEl.getAttribute('data-person'));
+      if (allowedPersons.has(personId) && hasPermission(personId)) {
+        eventEl.style.display = 'block';
+      } else {
+        eventEl.style.display = 'none';
+      }
+      });
+    }
+
+    // Add event to day with permission check
+    function addEventToDay(dayElement, eventText, person) {
+      const eventElement = document.createElement('div');
+      eventElement.className = 'event';
+      eventElement.textContent = eventText;
+      const personObj = persons.find(p => p.id === person);
+      if (personObj) {
+      eventElement.style.backgroundColor = personObj.color;
+      eventElement.style.color = getContrastYIQ(personObj.color);
+      }
+      eventElement.setAttribute('data-person', person);
+
+      if (hasPermission(person)) {
+      eventElement.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm('Möchten Sie diesen Termin löschen?')) {
+        eventElement.remove();
+        deleteEvent(currentDate.getFullYear(), currentDate.getMonth() + 1, dayElement.querySelector('.date').textContent, eventText, person);
+        }
+      });
+      }
+
+    dayElement.appendChild(eventElement);
+    applyFilters();
+
+      dayElement.appendChild(eventElement);
+      applyFilters();
+    }
+
+    // Add event listener for login button with permission check
+    document.getElementById('login-btn').addEventListener('click', () => {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const user = persons.find(p => p.name === username && p.password === password);
+      if (user) {
+        if (user.password === 'user1234') {
+          promptChangePassword(user);
+        }
+        document.getElementById('login-modal').style.display = 'none';
+        activePerson = user.id;
+        generatePersonSelectors();
+        switchView('month');
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    });
+        let activePerson = 1;
+        let currentDate = new Date(); // Beginne mit dem aktuellen Datum
+        let currentView = 'month';
+    
+        // Modal Elements
+        const editModal = document.getElementById('edit-modal');
+        let openEditModalBtn = document.getElementById('open-edit-modal');
+        const closeEditModalBtn = document.getElementById('close-edit-modal');
+        const personsList = document.getElementById('persons-list');
+        const addPersonBtn = document.getElementById('add-person');
+    
+        // Open Edit Modal
+        if (openEditModalBtn) {
+          openEditModalBtn.addEventListener('click', () => {
+            populateEditModal();
+            editModal.style.display = 'flex';
+          });
+        }
+    
+        // Close Edit Modal
+        closeEditModalBtn.addEventListener('click', () => {
+          editModal.style.display = 'none';
+        });
+    
+        // Close modal when clicking outside content
+        window.addEventListener('click', (event) => {
+          if (event.target == editModal) {
+            editModal.style.display = 'none';
+          }
+        });
+    
+        // Populate Edit Modal mit aktuellen Personen
+        function populateEditModal() {
+          personsList.innerHTML = '';
+          persons.forEach(person => {
+            const personDiv = document.createElement('div');
+            personDiv.className = 'person-edit';
+            personDiv.setAttribute('data-id', person.id);
+    
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.value = person.name;
+            nameInput.placeholder = person.name.trim() === '' ? 'neuer Name' : 'Name';
+    
+            const colorInput = document.createElement('input');
+            colorInput.type = 'color';
+            colorInput.value = person.color;
+    
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-person-btn';
+            removeBtn.textContent = '🗑️';
+            removeBtn.addEventListener('click', () => removePerson(person.id));
+    
+            personDiv.appendChild(nameInput);
+            personDiv.appendChild(colorInput);
+            if (persons.length > 1 && person.id !== 6) { // Ensure at least one person remains and do not remove 'Termine'
+              personDiv.appendChild(removeBtn);
+            }
+    
+            // Update person on input change
+            nameInput.addEventListener('input', (e) => {
+              person.name = e.target.value.trim() || 'Unnamed';
+              savePersons();
+              generatePersonSelectors();
+              generateFilterSelectors();
+              applyFilters();
+              updateEventsColors();
+            });
+    
+            colorInput.addEventListener('input', (e) => {
+              person.color = e.target.value;
+              savePersons();
+              generatePersonSelectors();
+              generateFilterSelectors();
+              applyFilters();
+              updateEventsColors();
+            });
+    
+            personsList.appendChild(personDiv);
+          });
+        }
+    
+    // Add new person with default password and prompt to change it on login
+    addPersonBtn.addEventListener('click', () => {
+      const newId = persons.length > 0 ? Math.max(...persons.map(p => p.id)) + 1 : 1;
+      const newPerson = { id: newId, name: '', password: 'user1234', roll: 'user', color: '#000000' };
+      persons.push(newPerson);
+      savePersons();
+      generatePersonSelectors();
+      populateEditModal();
+      generateFilterSelectors();
+    });
+        // Remove person
+        function removePerson(id) {
+          if (persons.length <= 1) {
+            alert('Mindestens eine Person muss vorhanden sein.');
+            return;
+          }
+          persons = persons.filter(person => person.id !== id);
+          // Remove events associated with this person
+          for (let date in events) {
+            events[date] = events[date].filter(event => event.person !== id);
+            if (events[date].length === 0) {
+              delete events[date];
+            }
+          }
+          // If the active person was removed, set to first person
+          if (activePerson === id) {
+            activePerson = persons[0].id;
+          }
+          savePersons();
+          saveEvents();
+          generatePersonSelectors();
+          populateEditModal();
+          generateFilterSelectors();
+          applyFilters();
+          switchView(currentView);
+        }
+    
+        // Update events colors based on current person colors
+        function updateEventsColors() {
+          document.querySelectorAll('.event').forEach(eventEl => {
+            const personId = parseInt(eventEl.getAttribute('data-person'));
+            const person = persons.find(p => p.id === personId);
+            if (person) {
+              eventEl.style.backgroundColor = person.color;
+              eventEl.style.color = getContrastYIQ(person.color);
+            }
+          });
+          // Also update person selector button colors
+          generatePersonSelectors();
+        }
+    
+        // Load persons and initialize selectors
+        generatePersonSelectors();
+    
+        function createCalendar() {
+          const daysContainer = document.querySelector('.calendar .days');
+          if (!daysContainer) return;
+          daysContainer.innerHTML = '';
+    
+          const year = currentDate.getFullYear();
+          const month = currentDate.getMonth();
+    
+          document.getElementById('current-month-year').textContent = 
+            new Intl.DateTimeFormat('de-DE', { year: 'numeric', month: 'long' }).format(currentDate);
+    
+          const firstDay = new Date(year, month, 1);
+          const lastDay = new Date(year, month + 1, 0);
+    
+          const startingDayOfWeek = (firstDay.getDay() + 6) % 7; // Montag als erster Tag der Woche
+          const daysInMonth = lastDay.getDate();
+    
+          const today = new Date();
+    
+          for (let i = 0; i < startingDayOfWeek; i++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'day other-month';
+            daysContainer.appendChild(dayElement);
+          }
+    
+          for (let i = 1; i <= daysInMonth; i++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'day';
+            if (year === today.getFullYear() && month === today.getMonth() && i === today.getDate()) {
+              dayElement.classList.add('current-day');
+            }
+            dayElement.innerHTML = `<div class="date">${i}</div>`;
+            dayElement.addEventListener('click', () => addEvent(dayElement, i));
+            daysContainer.appendChild(dayElement);
+    
+            // Lade existierende Ereignisse
+            const dateKey = `${year}-${month+1}-${i}`;
+            if (events[dateKey]) {
+              events[dateKey].forEach(event => {
+                addEventToDay(dayElement, event.text, event.person);
+              });
+            }
+          }
+          saveEvents();
+          applyFilters();
+        }
+    
+        function addEvent(dayElement, date) {
+          const eventText = prompt(`Neuer Termin für Person ${getPersonName(activePerson)} am ${date}. ${
+            new Intl.DateTimeFormat('de-DE', { month: 'long' }).format(currentDate)
+          } ${currentDate.getFullYear()}:`);
+          if (eventText) {
+            addEventToDay(dayElement, eventText, activePerson);
+            saveEvent(date, eventText, activePerson);
+          }
+        }
+    
+        function addEventToDay(dayElement, eventText, person) {
+          const eventElement = document.createElement('div');
+          eventElement.className = 'event';
+          eventElement.textContent = eventText;
+          const personObj = persons.find(p => p.id === person);
+          if (personObj) {
+            eventElement.style.backgroundColor = personObj.color;
+            eventElement.style.color = getContrastYIQ(personObj.color);
+          }
+          eventElement.setAttribute('data-person', person);
+          
+          eventElement.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm('Möchten Sie diesen Termin löschen?')) {
+              eventElement.remove();
+              deleteEvent(currentDate.getFullYear(), currentDate.getMonth()+1, dayElement.querySelector('.date').textContent, eventText, person);
+            }
+          });
+    
+          dayElement.appendChild(eventElement);
+          applyFilters();
+        }
+    
+        function saveEvent(day, text, person) {
+          const dateKey = `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${day}`;
+          if (!events[dateKey]) {
+            events[dateKey] = [];
+          }
+          events[dateKey].push({ text, person });
+          localStorage.setItem('events', JSON.stringify(events));
+        }
+    
+        function deleteEvent(year, month, day, text, person) {
+          const dateKey = `${year}-${month}-${day}`;
+          if (events[dateKey]) {
+            events[dateKey] = events[dateKey].filter(event => 
+              !(event.text === text && event.person === person)
+            );
+            if (events[dateKey].length === 0) {
+              delete events[dateKey];
+            }
+            localStorage.setItem('events', JSON.stringify(events));
+          }
+        }
+    
+        function setActivePerson(person) {
+          activePerson = person;
+          document.querySelectorAll('.person-selector button').forEach(btn => {
+            btn.classList.toggle('active', parseInt(btn.getAttribute('data-person')) === person);
+          });
+        }
+    
+        function getPersonName(personId) {
+          const person = persons.find(p => p.id === personId);
+          return person ? person.name : 'Unbekannt';
+        }
+    
+        function switchView(view) {
+          currentView = view;
+          document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === view);
+          });
+          
+          const calendar = document.querySelector('.calendar');
+          if (!calendar) return;
+    
+          // Hide all view contents
+          calendar.querySelector('.month-nav').style.display = 'none';
+          calendar.querySelector('.weekdays').style.display = 'none';
+          calendar.querySelector('.days').style.display = 'none';
+          calendar.querySelector('.year-view-content').style.display = 'none';
+    
+          if (view === 'year') {
+            calendar.querySelector('.year-view-content').style.display = 'block';
+            createYearView();
+          } else {
+            // Show relevant navigation based on view
+            if (view === 'month') {
+              calendar.querySelector('.month-nav').style.display = 'flex';
+              calendar.querySelector('.weekdays').style.display = 'grid';
+              calendar.querySelector('.days').style.display = 'grid';
+              createCalendar();
+            } else if (view === 'week') {
+              calendar.querySelector('.month-nav').style.display = 'flex';
+              calendar.querySelector('.weekdays').style.display = 'none';
+              calendar.querySelector('.days').style.display = 'grid';
+              createWeekView();
+            } else if (view === 'day') {
+              calendar.querySelector('.month-nav').style.display = 'flex';
+              calendar.querySelector('.weekdays').style.display = 'none';
+              calendar.querySelector('.days').style.display = 'grid';
+              createDayView();
+            }
+          }
+        }
+    
+        function createDayView() {
+          const daysContainer = document.querySelector('.calendar .days');
+          if (!daysContainer) return;
+          daysContainer.innerHTML = '';
+          
+          document.getElementById('current-month-year').textContent = 
+            new Intl.DateTimeFormat('de-DE', { 
+              weekday: 'long',
+              year: 'numeric', 
+              month: 'long',
+              day: 'numeric'
+            }).format(currentDate);
+            
+          const dayElement = document.createElement('div');
+          dayElement.className = 'day';
+          dayElement.innerHTML = `<div class="date">${currentDate.getDate()}</div>`;
+          
+          const dateKey = `${currentDate.getFullYear()}-${currentDate.getMonth()+1}-${currentDate.getDate()}`;
+          if (events[dateKey]) {
+            events[dateKey].forEach(event => {
+              addEventToDay(dayElement, event.text, event.person);
+            });
+          }
+          
+          daysContainer.appendChild(dayElement);
+        }
+    
+        function createWeekView() {
+          const daysContainer = document.querySelector('.calendar .days');
+          if (!daysContainer) return;
+          daysContainer.innerHTML = '';
+          
+          const weekStart = new Date(currentDate);
+          weekStart.setDate(currentDate.getDate() - ((currentDate.getDay() + 6) % 7)); // Montag als Start
+          
+          document.getElementById('current-month-year').textContent = 
+            `Woche vom ${new Intl.DateTimeFormat('de-DE', { 
+              year: 'numeric', 
+              month: 'long',
+              day: 'numeric'
+            }).format(weekStart)}`;
+            
+          for (let i = 0; i < 7; i++) {
+            const date = new Date(weekStart);
+            date.setDate(weekStart.getDate() + i);
+            
+            const dayElement = document.createElement('div');
+            dayElement.className = 'day';
+            dayElement.innerHTML = `
+              <div class="date">
+                ${new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric' }).format(date)}
+              </div>`;
+            
+            const dateKey = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
+            if (events[dateKey]) {
+              events[dateKey].forEach(event => {
+                addEventToDay(dayElement, event.text, event.person);
+              });
+            }
+            
+            daysContainer.appendChild(dayElement);
+          }
+          applyFilters();
+        }
+    
+        function createYearView() {
+          const yearContent = document.querySelector('.year-view-content .year-content');
+          if (!yearContent) return;
+          yearContent.innerHTML = '';
+    
+          document.getElementById('current-year').textContent = 
+            `Jahr ${currentDate.getFullYear()}`;
+          
+          for (let month = 0; month < 12; month++) {
+            const monthContainer = document.createElement('div');
+            monthContainer.className = 'month-container';
+            
+            // Add month header
+            const monthHeader = document.createElement('div');
+            monthHeader.className = 'month-header';
+            monthHeader.textContent = new Intl.DateTimeFormat('de-DE', { month: 'long' })
+              .format(new Date(currentDate.getFullYear(), month));
+            monthContainer.appendChild(monthHeader);
+            
+            // Create mini calendar grid for each month
+            const miniWeekdays = document.createElement('div');
+            miniWeekdays.className = 'weekdays mini';
+            miniWeekdays.innerHTML = `
+              <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div>
+              <div>Fr</div><div>Sa</div><div>So</div>`;
+            monthContainer.appendChild(miniWeekdays);
+            
+            const miniDays = document.createElement('div');
+            miniDays.className = 'mini-days';
+            
+            // Calculate first day of month
+            const firstDay = new Date(currentDate.getFullYear(), month, 1);
+            const startingDayOfWeek = (firstDay.getDay() + 6) % 7; // Montag als erster Tag
+            
+            // Add empty cells for days before start of month
+            for (let i = 0; i < startingDayOfWeek; i++) {
+              const emptyDay = document.createElement('div');
+              emptyDay.className = 'mini-day empty';
+              miniDays.appendChild(emptyDay);
+            }
+            
+            // Add all days of the month
+            const daysInMonth = new Date(currentDate.getFullYear(), month + 1, 0).getDate();
+            for (let day = 1; day <= daysInMonth; day++) {
+              const dayDiv = document.createElement('div');
+              dayDiv.className = 'mini-day';
+              
+              const dateKey = `${currentDate.getFullYear()}-${month+1}-${day}`;
+              if (events[dateKey] && events[dateKey].length > 0) {
+                dayDiv.classList.add('has-events');
+              }
+              
+              dayDiv.textContent = day;
+              dayDiv.style.color = '#000000'; // Default color for numbers
+              dayDiv.addEventListener('click', () => {
+                currentDate = new Date(currentDate.getFullYear(), month, day);
+                switchView('day');
+              });
+              miniDays.appendChild(dayDiv);
+            }
+            
+            monthContainer.appendChild(miniDays);
+            yearContent.appendChild(monthContainer);
+          }
+    
+          // Add event listeners for year navigation
+          document.getElementById('prev-year').onclick = () => {
+            currentDate.setFullYear(currentDate.getFullYear() - 1);
+            switchView('year');
+          };
+    
+          document.getElementById('next-year').onclick = () => {
+            currentDate.setFullYear(currentDate.getFullYear() + 1);
+            switchView('year');
+          };
+          applyFilters();
+        }
+    
+        // Add event listeners for view buttons
+        document.querySelectorAll('.view-btn').forEach(btn => {
+          btn.addEventListener('click', () => switchView(btn.dataset.view));
+        });
+    
+        // Update navigation buttons to work with all views
+        document.getElementById('prev-month').addEventListener('click', () => {
+          switch(currentView) {
+            case 'day':
+              currentDate.setDate(currentDate.getDate() - 1);
+              break;
+            case 'week':
+              currentDate.setDate(currentDate.getDate() - 7);
+              break;
+            case 'month':
+              currentDate.setMonth(currentDate.getMonth() - 1);
+              break;
+            case 'year':
+              currentDate.setFullYear(currentDate.getFullYear() - 1);
+              break;
+          }
+          switchView(currentView);
+        });
+    
+        document.getElementById('next-month').addEventListener('click', () => {
+          switch(currentView) {
+            case 'day':
+              currentDate.setDate(currentDate.getDate() + 1);
+              break;
+            case 'week':
+              currentDate.setDate(currentDate.getDate() + 7);
+              break;
+            case 'month':
+              currentDate.setMonth(currentDate.getMonth() + 1);
+              break;
+            case 'year':
+              currentDate.setFullYear(currentDate.getFullYear() + 1);
+              break;
+          }
+          switchView(currentView);
+        });
+    
+        document.getElementById('add-range-event').addEventListener('click', () => {
+          const startDateInput = document.getElementById('start-date').value;
+          const endDateInput = document.getElementById('end-date').value;
+    
+          if (!startDateInput) {
+            alert('Bitte ein Startdatum auswählen.');
+            return;
+          }
+    
+          const startDate = new Date(startDateInput);
+          let endDate;
+          if (endDateInput) {
+            endDate = new Date(endDateInput);
+            if (startDate > endDate) {
+              alert('Das Startdatum muss vor dem Enddatum liegen.');
+              return;
+            }
+          } else {
+            endDate = startDate;
+          }
+    
+          const eventText = prompt(`Neuer Termin für Person ${getPersonName(activePerson)} vom ${startDate.toLocaleDateString('de-DE')}${endDateInput ? ` bis ${endDate.toLocaleDateString('de-DE')}` : ''}:`);
+          if (eventText) {
+            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+              const year = d.getFullYear();
+              const month = d.getMonth() + 1;
+              const day = d.getDate();
+              const dateKey = `${year}-${month}-${day}`;
+              
+              if (!events[dateKey]) {
+                events[dateKey] = [];
+              }
+              events[dateKey].push({ text: eventText, person: activePerson });
+            }
+            saveEvents();
+            switchView(currentView); // Aktualisiere die aktuelle Ansicht, um die neuen Ereignisse anzuzeigen
+          }
+        });
+    
+        // Setze das Mindestdatum für die Datumseingabefelder
+        const today = new Date();
+        const minDate = new Date(Math.max(today, new Date(2024, 0, 1))).toISOString().split('T')[0];
+        document.getElementById('start-date').min = minDate;
+        document.getElementById('end-date').min = minDate;
+    
+        // Initiale Ansicht laden
+        switchView('month');
+    
+        // Handle window resize for year view
+        window.addEventListener('resize', () => {
+          if (currentView === 'year') {
+            createYearView();
+          }
+        });
+    
+/*         // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+              .then(registration => {
+                console.log('ServiceWorker registration successful with scope:', registration.scope);
+              })
+              .catch(error => {
+                console.log('ServiceWorker registration failed:', error);
+              });
+          });
+        }
+ */    
+        // Dropdown Filter Functionality
+        const filterDropdownBtn = document.getElementById('filter-dropdown-btn');
+        const filterDropdownContent = document.getElementById('filter-dropdown-content');
+    
+        filterDropdownBtn.addEventListener('click', () => {
+          filterDropdownContent.classList.toggle('show');
+        });
+    
+        // Close the dropdown if the user clicks outside of it
+        window.addEventListener('click', (event) => {
+          if (!event.target.matches('#filter-dropdown-btn')) {
+            if (filterDropdownContent.classList.contains('show')) {
+              filterDropdownContent.classList.remove('show');
+            }
+          }
+        });
+      </script>
+    
+      <!-- Prompt user to install PWA -->
+      <script>
+        let deferredPrompt;
+        const installBtn = document.createElement('button');
+        installBtn.textContent = 'App installieren';
+        installBtn.style.position = 'fixed';
+        installBtn.style.bottom = '20px';
+        installBtn.style.right = '20px';
+        installBtn.style.padding = '10px 20px';
+        installBtn.style.backgroundColor = '#4285f4';
+        installBtn.style.color = 'white';
+        installBtn.style.border = 'none';
+        installBtn.style.borderRadius = '5px';
+        installBtn.style.cursor = 'pointer';
+        installBtn.style.display = 'none';
+        document.body.appendChild(installBtn);
+    
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          installBtn.style.display = 'block';
+        });
+    
+        installBtn.addEventListener('click', () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+              } else {
+                console.log('User dismissed the install prompt');
+              }
+              deferredPrompt = null;
+              installBtn.style.display = 'none';
+            });
+          }
+        });
+      </script>
+    </body>
+    </html>
