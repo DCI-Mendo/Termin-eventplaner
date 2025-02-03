@@ -37,3 +37,11 @@
 .team-card p {
   color: #718096;
 }
+#eventPopup {
+  z-index: 1000; /* Ensure the popup is above the footer */
+}
+
+/* Footer Styles */
+#events-footer {
+  z-index: 50; /* Ensure the footer is below the popup */
+}

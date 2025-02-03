@@ -216,27 +216,3 @@ export const eventsList = [
     isFavorite: false,
   },
 ];
-export default function EventsPage() {
-  return `
-      <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-6 text-center text-blue-700">Events</h1>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          ${eventsList
-            .map(
-              (event) => `
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div class="p-6">
-                <h2 class="text-2xl font-bold text-blue-600">${event.title}</h2>
-                <p class="text-gray-600 mb-4">${event.description}</p>
-                <p class="font-semibold">Price: ${event.price} €</p>
-                <p class="text-sm text-gray-500">Duration: ${event.duration}</p>
-                <p class="text-sm text-gray-500">Category: ${event.category}</p>
-              </div>
-            </div>
-          `,
-            )
-            .join("")}
-        </div>
-      </div>
-    `;
-}
